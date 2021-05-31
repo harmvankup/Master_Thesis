@@ -1,0 +1,79 @@
+---
+#
+# Required Information --------------------------------------------------------
+# change lines 5 - 15
+title: "Phosphate dynamics in iron treated peat ditches"
+type: "Master's Thesis"
+author: "Harm van Kuppevelt"
+matriculation_number: "4061985"
+date: "June, 2021"
+university: "Utrecht University"
+institute: "Faculty of Geosciences" 
+chair: "Department of Earth sciences"
+advisor1: "Dr. Thilo Behrends"
+advisor2: "Melanie Münch Msc."            
+program: "Master of Earth Science"
+#
+# Optional Information --------------------------------------------------------
+# comment out if unnecessary
+chair2: "Geochemistry"
+abstract: |  
+  `r if(knitr:::is_latex_output()) paste(readLines("prelim/00-abstract.Rmd"), collapse = '\n  ')`
+acknowledge: |  
+  `r if(knitr:::is_latex_output()) paste(readLines("prelim/00-acknowledge.Rmd"), collapse = '\n  ')`
+lot: true                              # list of tables
+lof: true                              # list of figures
+link-citations: true
+bibliography: bib/references.bib       # bibliography file
+#
+# Rendering Options -----------------------------------------------------------
+#
+knit: "bookdown::render_book"
+output: 
+  huwiwidown::thesis_pdf  
+space_between_paragraphs: true       # if you want spaces bt paragraph
+# header-includes:     # if including additional latex packages or commands
+  # - \setlength{\parindent}{17pt}
+---
+
+<!--
+Above is the YAML (YAML Ain't Markup Language) header that includes a lot of
+metadata used to produce the document.  Be careful with spacing in this header!
+If you'd like to include a comment that won't be produced in your resulting file
+enclose it in a block like this.
+-->
+
+<!--
+If you receive a duplicate label error after knitting, make sure to delete the
+index.Rmd file and then knit again.
+-->
+
+```{r include_packages, include = FALSE}
+# This chunk ensures that the `huwiwidown` package is installed and loaded. This
+# package includes the template files for the thesis.
+if (!require(devtools)) {
+  install.packages("devtools", repos = "http://cran.rstudio.com")
+}
+if (!require(huwiwidown)) {
+  devtools::install_github("phister/huwiwidown")
+  library(huwiwidown)
+}
+```
+
+<!-- 
+The {.unnumbered} option here means that the introduction will be "Section  0."
+You can also use {-} for no numbers on section. 
+-->
+
+<!--
+The body of the thesis starts underneath the text below. Feel free to delete
+everything below this.
+-->
+
+# Preface {-}
+
+Welcome to the thesis template. This template is based on (and in many places 
+copied directly from) the HU Berlin School of Business and Economics LaTeX 
+template, but hopefully it will provide a nicer interface for those that have
+never used LaTeX before. 
+
