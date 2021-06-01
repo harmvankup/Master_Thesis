@@ -1,5 +1,102 @@
 # Results
 
+```{r ICgraphs, echo=FALSE}
+getwd()
+
+# import raw data
+library(readxl)
+library(here)
+library(tidyverse)
+library(ggplot2)
+IC_raw_data <- read_excel(path.expand(here("index","data", "IC_raw_data.xlsx")))
+
+
+# Tranform the raw data to middle duplicates.
+ICplotdata  <- IC_raw_data %>% 
+  filter(str_detect(sample,"pw")) %>% 
+  group_by(sample) %>% 
+  mutate(P = mean(Phosphate), S = mean(Sulphate), Br = mean(Bromide), Fl = mean(Fluoride), Cl = mean(Chloride) , na.rm = TRUE) %>%
+  distinct(sample, .keep_all = TRUE)
+
+
+# Plot phosphate
+ICplot_P <- ICplotdata %>% 
+  ggplot(mapping = aes(
+                        x = P,
+                        y = -cm_below_swi,
+                        color = location)
+         ) + 
+  geom_point() + geom_path() + 
+  labs( x = "P in mg/L", 
+        y = "Depth in cm",
+        title ="depth profile P") 
+
+
+ICplot_P + facet_grid(. ~ location)
+
+# plot Sulphate
+ICplot_S <- ICplotdata %>% 
+  ggplot(mapping = aes(
+                        x = S,
+                        y = -cm_below_swi,
+                        color = location)
+         ) + 
+  geom_point() + geom_path() + 
+  labs( x = "Sulphate in mg/L", 
+        y = "Depth in cm",
+        title ="depth profile Sulphate") 
+
+
+ICplot_S + facet_grid(. ~ location)
+
+#Plot cloride
+ICplot_Cl <- ICplotdata %>% 
+  ggplot(mapping = aes(
+                        x = Cl,
+                        y = -cm_below_swi,
+                        color = location)
+         ) + 
+  geom_point() + geom_path() + 
+  labs( x = "Cl- in mg/L", 
+        y = "Depth in cm",
+        title ="depth profile Chloride") 
+
+
+ICplot_Cl + facet_grid(. ~ location)
+
+#Plot Bromide
+ICplot_Br <- ICplotdata %>% 
+  ggplot(mapping = aes(
+                        x = Br,
+                        y = -cm_below_swi,
+                        color = location)
+         ) + 
+  geom_point() + geom_path() + 
+  labs( x = "Br- in mg/L", 
+        y = "Depth in cm",
+        title ="depth profile Bromide") 
+
+
+ICplot_Br + facet_grid(. ~ location)
+
+#Plot Fluoride
+ICplot_F <- ICplotdata %>% 
+  ggplot(mapping = aes(
+                        x = Fl,
+                        y = -cm_below_swi,
+                        color = location)
+         ) + 
+  geom_point() + geom_path() + 
+  labs( x = "F- in mg/L", 
+        y = "Depth in cm",
+        title ="depth profile Fluoride") 
+
+
+ICplot_F + facet_grid(. ~ location)
+
+```
+
+
 * Organize material and present results.
 
 * Use tables, figures (but prefer visual presentation):
@@ -16,14 +113,15 @@
     name of the code chunk.
 
 ```{r graph, echo=FALSE, fig.cap="Estimated residuals from model XXX. ...", out.width = "50%"}
-knitr::include_graphics("figures/graph.eps")
+knitr::include_graphics(here("index","figures","graph.eps"))
 ```
   + Tables and graphics may appear in the text or in the appendix, especially if
   there are many simulation results tabulated, but is also depends on the study
   and number of tables resp. figures. The key graphs and tables must appear in
   the text!
 
-```{r table1, echo=FALSE}
+```{r table, echo=FALSE}
+library(tidyverse)
 col_names <- c(
   "3m", "6m", "1yr", "2yr", "3yr", "5yr", "7yr", "10yr", "12yr", "15yr"
 )
