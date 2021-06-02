@@ -8,6 +8,7 @@ library(readxl)
 library(here)
 library(tidyverse)
 library(ggplot2)
+
 IC_raw_data <- read_excel(path.expand(here("index","data", "IC_raw_data.xlsx")))
 
 
@@ -15,7 +16,7 @@ IC_raw_data <- read_excel(path.expand(here("index","data", "IC_raw_data.xlsx")))
 ICplotdata  <- IC_raw_data %>% 
   filter(str_detect(sample,"pw")) %>% 
   group_by(sample) %>% 
-  mutate(P = mean(Phosphate), S = mean(Sulphate), Br = mean(Bromide), Fl = mean(Fluoride), Cl = mean(Chloride) , na.rm = TRUE) %>%
+  mutate(P = (mean(Phosphate)*1000)/94.9714, S = mean(Sulphate), Br = mean(Bromide), Fl = mean(Fluoride), Cl = mean(Chloride) , na.rm = TRUE) %>%
   distinct(sample, .keep_all = TRUE)
 
 
@@ -27,7 +28,7 @@ ICplot_P <- ICplotdata %>%
                         color = location)
          ) + 
   geom_point() + geom_path() + 
-  labs( x = "P in mg/L", 
+  labs( x = expression(paste("P in ",mu,"mol/L")), 
         y = "Depth in cm",
         title ="depth profile P") 
 
@@ -95,7 +96,69 @@ ICplot_F <- ICplotdata %>%
 ICplot_F + facet_grid(. ~ location)
 
 ```
+``` {r ICinc, echo = FALSE}
+# import photometric raw data and time information
+incubationgraph <- read_excel(here("index","data","incubationgraph.xlsx"))
 
+# middle duplicates for IC data
+IC_inc_data <- IC_raw_data %>% filter(str_detect(sample,'inc')) %>% group_by(sample) %>% mutate(P = (mean(Phosphate)*1000)/94.9714, S = mean(Sulphate), Br = mean(Bromide), Fl = mean(Fluoride), Cl = mean(Chloride) , na.rm = TRUE) %>% distinct(sample, .keep_all = TRUE) 
+
+
+# Join IC and photometric data, and add treated and oxic status foor all cores.
+inc_data <- 
+full_join(
+  incubationgraph,
+  IC_inc_data,
+  by = c("samplenr" = "sample"),
+  copy = FALSE,
+  suffix = c(".photometric", ".IC"),
+  keep = FALSE
+) %>% 
+  mutate(oxic_state =
+      case_when(
+        str_detect(samplenr,"2\\.")  ~ "oxic",
+        str_detect(samplenr,"3\\.")  ~ "anoxic")) %>% 
+  mutate(treated =
+      case_when(
+        str_detect(samplenr,"A|C")  ~ "treated",
+        str_detect(samplenr,"B|D")  ~ "nontreated")) 
+
+# reshape the data by melting all variables, and grouping them by parameter.
+library(reshape2)
+
+molten_inc <- inc_data %>% select("Core.photometric", "samplenr", "time", "H2SuM" : "DO(mg/L)" , "P":"Cl", "oxic_state", "treated") %>% 
+melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated"), 
+     measured_.vars = c( "H2S uM", 
+                         "FeII(uM)",
+                         "FeTot(uM)", 
+                         "FeIII(uM)",  
+                         "P real (uM)", 
+                         "NH4", 
+                         "DO (mg/L)",  
+                         "P", 
+                         "S",      
+                         "Br",
+                         "Fl", 
+                         "Cl"), na.rm = TRUE)
+
+nest_inc <- molten_inc %>% group_by(variable) %>% nest()
+
+# create plots for all parameters
+pmap(list(nest_inc$data, c( "H2S", 
+                         "FeII",
+                         "FeTot", 
+                         "FeIII",  
+                         "P (photometric)", 
+                         "NH4", 
+                         "DO",  
+                         "P (IC)", 
+                         "Sulphate",      
+                         "Br",
+                         "F", 
+                         "Cl")), ~ ggplot(..1 , mapping = aes(x = time , y = value, color = treated, by = Core.photometric)) + geom_point() + geom_line() + facet_wrap(~oxic_state) + labs(title = ..2))
+
+
+```
 
 * Organize material and present results.
 
