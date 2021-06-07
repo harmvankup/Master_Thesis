@@ -1,103 +1,64 @@
 # Results
 
-```{r ICgraphs, echo=FALSE}
-getwd()
+```{r pwgraphs, echo=FALSE}
+
 
 # import raw data
-library(readxl)
-library(here)
-library(tidyverse)
-library(ggplot2)
+
 
 IC_raw_data <- read_excel(path.expand(here("index","data", "IC_raw_data.xlsx")))
 
 
-# Tranform the raw data to middle duplicates.
+# Transform the raw data to middle duplicates.
 ICplotdata  <- IC_raw_data %>% 
   filter(str_detect(sample,"pw")) %>% 
   group_by(sample) %>% 
-  mutate(P = (mean(Phosphate)*1000)/94.9714, S = mean(Sulphate), Br = mean(Bromide), Fl = mean(Fluoride), Cl = mean(Chloride) , na.rm = TRUE) %>%
-  distinct(sample, .keep_all = TRUE)
+  mutate(P = (mean(Phosphate)*1000)/94.9714, S = mean(Sulphate)*1000/96.06, Br = mean(Bromide)*1000/79.9, Fl = mean(Fluoride)*1000/19, Cl = mean(Chloride)*1000/35.45 ) %>%
+  distinct(sample, .keep_all = TRUE) %>% 
+  mutate(treated =
+      case_when(
+        str_detect(sample,"A|C")  ~ "treated",
+        str_detect(sample,"B|D")  ~ "nontreated")) 
+
+# reshape data.
+molten_IC_core_data <- ICplotdata %>% select("location", "sample", "cm_below_swi", "P" : "treated") %>% 
+melt(id.vars = c("location", "sample", "cm_below_swi", "treated"), 
+     measured_.vars = c( "P", 
+                         "S",      
+                         "Br",
+                         "Fl", 
+                         "Cl"), na.rm = TRUE)
+
+nest_IC_pw_depth <- molten_IC_core_data %>% group_by(variable) %>% nest()
+
+# plot profiles by parameter
+pmap(
+  list(nest_IC_pw_depth$data ,c("depth profile P",
+                              "depth profile Sulphate",
+                              "depth profile Bromide",
+                              "depth profile Fluoride",
+                              "depth profile Chloride")
+          ), 
+  
+     ~ ggplot(..1, mapping = aes(
+                        x = value,
+                        y = - cm_below_swi,
+                        color = treated,
+                        shape = location)
+         ) + scale_color_manual( values=c("nontreated" = "blue", "treated" = "red")) +
+       geom_point() + 
+       geom_path() +
+       labs(  x = expression(paste("concentration in",mu,"mol/L")), 
+              y = "Depth in cm",
+              title = ..2) +
+       theme(aspect.ratio = 2.)
+  )
 
 
-# Plot phosphate
-ICplot_P <- ICplotdata %>% 
-  ggplot(mapping = aes(
-                        x = P,
-                        y = -cm_below_swi,
-                        color = location)
-         ) + 
-  geom_point() + geom_path() + 
-  labs( x = expression(paste("P in ",mu,"mol/L")), 
-        y = "Depth in cm",
-        title ="depth profile P") 
-
-
-ICplot_P + facet_grid(. ~ location)
-
-# plot Sulphate
-ICplot_S <- ICplotdata %>% 
-  ggplot(mapping = aes(
-                        x = S,
-                        y = -cm_below_swi,
-                        color = location)
-         ) + 
-  geom_point() + geom_path() + 
-  labs( x = "Sulphate in mg/L", 
-        y = "Depth in cm",
-        title ="depth profile Sulphate") 
-
-
-ICplot_S + facet_grid(. ~ location)
-
-#Plot cloride
-ICplot_Cl <- ICplotdata %>% 
-  ggplot(mapping = aes(
-                        x = Cl,
-                        y = -cm_below_swi,
-                        color = location)
-         ) + 
-  geom_point() + geom_path() + 
-  labs( x = "Cl- in mg/L", 
-        y = "Depth in cm",
-        title ="depth profile Chloride") 
-
-
-ICplot_Cl + facet_grid(. ~ location)
-
-#Plot Bromide
-ICplot_Br <- ICplotdata %>% 
-  ggplot(mapping = aes(
-                        x = Br,
-                        y = -cm_below_swi,
-                        color = location)
-         ) + 
-  geom_point() + geom_path() + 
-  labs( x = "Br- in mg/L", 
-        y = "Depth in cm",
-        title ="depth profile Bromide") 
-
-
-ICplot_Br + facet_grid(. ~ location)
-
-#Plot Fluoride
-ICplot_F <- ICplotdata %>% 
-  ggplot(mapping = aes(
-                        x = Fl,
-                        y = -cm_below_swi,
-                        color = location)
-         ) + 
-  geom_point() + geom_path() + 
-  labs( x = "F- in mg/L", 
-        y = "Depth in cm",
-        title ="depth profile Fluoride") 
-
-
-ICplot_F + facet_grid(. ~ location)
 
 ```
 ``` {r ICinc, echo = FALSE}
-# import photometric raw data and time information
+
 incubationgraph <- read_excel(here("index","data","incubationgraph.xlsx"))
 
 # middle duplicates for IC data
@@ -124,7 +85,6 @@ full_join(
         str_detect(samplenr,"B|D")  ~ "nontreated")) 
 
 # reshape the data by melting all variables, and grouping them by parameter.
-library(reshape2)
 
 molten_inc <- inc_data %>% select("Core.photometric", "samplenr", "time", "H2SuM" : "DO(mg/L)" , "P":"Cl", "oxic_state", "treated") %>% 
 melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated"), 
@@ -155,7 +115,7 @@ pmap(list(nest_inc$data, c( "H2S",
                          "Sulphate",      
                          "Br",
                          "F", 
-                         "Cl")), ~ ggplot(..1 , mapping = aes(x = time , y = value, color = treated, by = Core.photometric)) + geom_point() + geom_line() + facet_wrap(~oxic_state) + labs(title = ..2))
+                         "Cl")), ~ ggplot(..1 , mapping = aes(x = time , y = value, color = treated, by = Core.photometric)) + geom_point() + geom_line() + theme(aspect.ratio = 0.5) + facet_wrap(~oxic_state) + labs(title = ..2))
 
 
 ```

@@ -57,6 +57,12 @@ if (!require(devtools)) {
 if (!require(huwiwidown)) {
   devtools::install_github("phister/huwiwidown")
   library(huwiwidown)
+  
+library(readxl)
+library(here)
+library(tidyverse)
+library(ggplot2)
+library(reshape2)
 }
 ```
 
