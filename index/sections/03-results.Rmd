@@ -191,6 +191,83 @@ ggsave(paste("IC_incubations.png",sep=""), plot =IC_incubation_graph, path = pat
 
 ```
 
+
+
+```{r Feseq, echo=FALSE}
+#import sequential extraction data.
+Seq_extr_data <- read_excel(here("index","data","Seq_extr_data.xlsx"))
+
+
+# define detection limits as given by ICP report
+Detlim_Fe_Mg <- 0.068
+Detlim_Fe_HCl <- 0.021
+Detlim_Fe_HNO <- 0.035
+Detlim_P_Mg <- 0.097
+Detlim_P_HCl <- 0.043
+Detlim_P_HNO <- 0.057
+
+# density of extractants and molar weight of Fe and P
+d_MgCl <- 1.0467
+d_pyroP <- 1.0402
+d_HCl <- 1.0152
+d_CBD <- 1.0887
+d_HNO <- 1.414
+mw_Fe <- 55.845
+mw_P <- 30.973762
+
+
+# define functions to calculate umol/g sediment from raw ICP and colourimetric data.
+ppm_to_umol_p_g <- function(mol_weight, 
+                            Dens, 
+                            total_weight, 
+                            sample_weight, 
+                            Dil = 10, 
+                            detlim, 
+                            ppm){
+  
+ conc <- case_when(ppm/Dil < detlim ~ 0, 
+                   T ~ ((total_weight/Dens)*ppm)/(sample_weight*mol_weight) 
+                    )
+ return(conc)
+}
+
+mM_to_umol_p_g<- function(  Dens, 
+                            total_weight, 
+                            sample_weight,
+                            mM){
+  
+ conc <- ((total_weight/Dens)*mM)/(sample_weight) 
+                    
+ return(conc)
+}
+
+# Transform raw data.
+Seq_extr_data %>% 
+  mutate(
+    Location = case_when(
+        str_detect(Station,"A")  ~ "A",
+        str_detect(Station,"B")  ~ "B",
+        str_detect(Station,"C")  ~ "C",
+        str_detect(Station,"D")  ~ "D",
+        T ~ "blank"),
+    Incubation = case_when(
+        str_detect(Station, "1\\.") ~ "before",
+        str_detect(Station, "3\\.")  ~ "after",
+        T ~ "blank" ),
+    Fe_HCl_calc = ppm_to_umol_p_g(mol_weight = mw_Fe, 
+                                  Dens = d_HCl, 
+                                  total_weight = weight_HCl, 
+                                  sample_weight = sample_weight_A, 
+                                  detlim = Detlim_Fe_HCl,
+                                  ppm = ICP_HCl_Fe),
+    Fetot_HCl_calc = mM_to_umol_p_g(Dens = d_HCl,
+                                    total_weight = weight_HCl,
+                                    sample_weight = sample_weight_A,
+                                    mM = Col_HCl_Fetot)
+    ) %>% view()
+
+```
+
 * Organize material and present results.
 
 * Use tables, figures (but prefer visual presentation):
