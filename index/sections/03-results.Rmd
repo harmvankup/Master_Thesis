@@ -13,12 +13,12 @@ pw_photometric <-  read_excel(path.expand(here("index","data", "pw_P_photometric
 ICplotdata  <- IC_raw_data %>% 
   filter(str_detect(sample,"pw|sw")) %>% 
   group_by(sample) %>% 
-  mutate(P = (mean(Phosphate)*1000)/94.9714, "SO" = mean(Sulphate)*1000/96.06, "Br-" = mean(Bromide)*1000/79.9, "F-" = mean(Fluoride)*1000/19, "Cl-" = mean(Chloride)*1000/35.45 ) %>%
+  mutate(P = (mean(Phosphate)*1000)/94.9714, "SO" = mean(Sulphate)*1000/96.06, NO = mean(Nitrate)*1000/62.004, "Br" = mean(Bromide)*1000/79.9, "Fl" = mean(Fluoride)*1000/19, "Cl" = mean(Chloride)*1000/35.45 ) %>%
   distinct(sample, .keep_all = TRUE) %>% 
   mutate(treated =
       case_when(
         str_detect(sample,"A|C")  ~ "treated",
-        str_detect(sample,"B|D")  ~ "nontreated")) %>% full_join(
+        str_detect(sample,"B|D")  ~ "nontreated")) %>% left_join(
   pw_photometric,
   by = c("sample" = "Sample"),
   copy = FALSE,
@@ -27,66 +27,71 @@ ICplotdata  <- IC_raw_data %>%
 ) %>%  group_by(location) %>% arrange(cm_below_swi) 
 
 # reshape data.
-molten_IC_core_data <- ICplotdata %>% select("location", "sample", "cm_below_swi", "P.IC" : "treated","P.photometric") %>% 
+molten_IC_core_data <- ICplotdata %>% select("location", "sample", "cm_below_swi", "P" : "treated") %>% 
 melt(id.vars = c("location", "sample", "cm_below_swi", "treated"), 
-     measured_.vars = c( "P.IC", 
-                         "SO",      
-                         "Br-",
-                         "Fl-", 
-                         "Cl-",
-                         "P.photometric"), na.rm = TRUE)
+     measured_.vars = c( "P", 
+                         "SO", 
+                         "NO",
+                         "Br",
+                         "Fl", 
+                         "Cl"), na.rm = TRUE)
 
 nest_IC_pw_depth <- molten_IC_core_data %>% group_by(variable) %>% nest()
 
 # plot profiles by parameter
-pmap(
-  list(nest_IC_pw_depth$data ,c("depth profile P",
-                              "depth profile Sulphate",
-                              "depth profile Bromide",
-                              "depth profile Fluoride",
-                              "depth profile Chloride",
-                              "depth profile P photometric")
-          ), 
-  
-     ~ ggplot(..1, mapping = aes(
-                        x = value,
-                        y = - cm_below_swi,
-                        color = treated,
-                        shape = location)
-              ) +
-        scale_color_manual( values=c("nontreated" = "blue", "treated" = "red")) +
-        scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
-        geom_point() + 
-        geom_path() +
-        labs(  x = expression(paste("concentration in ",mu,"mol/L")), 
-              y = "Depth in cm",
-              title = ..2) +
-       theme(aspect.ratio = 2.)
-  )
 
-ggplot(molten_IC_core_data, mapping = aes(
+Lables = as_labeller( c( "P"  = "PO[4]^'3-'",                      
+   "SO" = "SO[3]^'2-'", 
+   "NO" = "NO[3]^'-'",
+   "Br" = "Br^'-'",
+   "Fl" = "F^'-'", 
+   "Cl" = "Cl^'-'"), default =  label_parsed )
+
+IC_profile_plots <- ggplot(molten_IC_core_data, mapping = aes(
                         x = value,
-                        y = - cm_below_swi ,
+                        y = cm_below_swi ,
                         color = location,
                         shape = location)
          ) +
+       
        scale_color_manual( values=c("A" = "red", "B" = "blue", "C" = "red", "D" = "blue")) +
        scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
+      scale_y_reverse() +
        geom_point() + 
        geom_path() +
-       facet_grid(cols = vars(variable), scales = "free_x") +
+       facet_grid(cols = vars(variable), scales = "free_x", labeller = Lables) +
        labs(  x = expression(paste("concentration in ",mu,"mol/L")), 
               y = "Depth in cm",
-              title = "P photometric") +
-       theme(aspect.ratio = 2.)
+              title = "pw profiles measured with IC") +
+      theme_classic() +
+      theme(aspect.ratio = 2. ,
+            axis.text.y   = element_text(size=14),
+            axis.text.x   = element_text(size=14),
+            axis.title.y  = element_text(size=14),
+            axis.title.x  = element_text(size=14),
+            strip.text.y   = element_text(size=14),
+            strip.text.x   = element_text(size=14),
+            panel.background = element_blank(),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(colour = "black"),
+            panel.border = element_rect(colour = "black", fill=NA, size=1)
+            )
+
+ggsave(paste("IC_profiles.png",sep=""), plot =IC_profile_plots, path = path.expand(here("index","figures")),
+
+       width =40, height = 22,units = "cm",dpi = 600)
 
 ```
+
+
+
 ``` {r ICinc, echo = FALSE}
 
 incubationgraph <- read_excel(here("index","data","incubationgraph.xlsx"))
 
 # middle duplicates for IC data
-IC_inc_data <- IC_raw_data %>% filter(str_detect(sample,'inc')) %>% group_by(sample) %>% mutate(P = (mean(Phosphate)*1000)/94.9714, S = mean(Sulphate), Br = mean(Bromide), Fl = mean(Fluoride), Cl = mean(Chloride) , na.rm = TRUE) %>% distinct(sample, .keep_all = TRUE) 
+IC_inc_data <- IC_raw_data %>% filter(str_detect(sample,'inc')) %>% group_by(sample) %>% mutate(P = (mean(Phosphate)*1000)/94.9714, SO = mean(Sulphate), NO = Br = mean(Bromide), Fl = mean(Fluoride), Cl = mean(Chloride) , na.rm = TRUE) %>% distinct(sample, .keep_all = TRUE) 
 
 
 # Join IC and photometric data, and add treated and oxic status foor all cores.
