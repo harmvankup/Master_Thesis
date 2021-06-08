@@ -91,7 +91,17 @@ ggsave(paste("IC_profiles.png",sep=""), plot =IC_profile_plots, path = path.expa
 incubationgraph <- read_excel(here("index","data","incubationgraph.xlsx"))
 
 # middle duplicates for IC data
-IC_inc_data <- IC_raw_data %>% filter(str_detect(sample,'inc')) %>% group_by(sample) %>% mutate(P = (mean(Phosphate)*1000)/94.9714, SO = mean(Sulphate), NO = Br = mean(Bromide), Fl = mean(Fluoride), Cl = mean(Chloride) , na.rm = TRUE) %>% distinct(sample, .keep_all = TRUE) 
+IC_inc_data <- 
+  IC_raw_data %>% 
+  filter(str_detect(sample,'inc')) %>% 
+  group_by(sample) %>% 
+  mutate(P = (mean(Phosphate)*1000)/94.9714, 
+         "SO" = mean(Sulphate)*1000/96.06, 
+         NO = mean(Nitrate)*1000/62.004, 
+         "Br" = mean(Bromide)*1000/79.9, 
+         "Fl" = mean(Fluoride)*1000/19,
+         "Cl" = mean(Chloride)*1000/35.45) %>% 
+  distinct(sample, .keep_all = TRUE) 
 
 
 # Join IC and photometric data, and add treated and oxic status foor all cores.
@@ -111,21 +121,33 @@ full_join(
   mutate(treated =
       case_when(
         str_detect(samplenr,"A|C")  ~ "treated",
-        str_detect(samplenr,"B|D")  ~ "nontreated")) 
+        str_detect(samplenr,"B|D")  ~ "nontreated"))  %>% 
+  mutate(Location =
+      case_when(
+        str_detect(samplenr,"A")  ~ "A",
+        str_detect(samplenr,"B")  ~ "B",
+        str_detect(samplenr,"C")  ~ "C",
+        str_detect(samplenr,"D")  ~ "D")) 
 
 # reshape the data by melting all variables, and grouping them by parameter.
 
-molten_inc <- inc_data %>% select("Core.photometric", "samplenr", "time", "H2SuM" : "DO(mg/L)" , "P":"Cl", "oxic_state", "treated") %>% 
-melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated"), 
+molten_inc <- inc_data %>% select("Core.photometric", 
+                                  "samplenr",
+                                  "time", 
+                                  "H2SuM" : "NH4" , 
+                                  "SO":"Cl", 
+                                  "oxic_state", 
+                                  "treated", 
+                                  "Location") %>% 
+melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated","Location"), 
      measured_.vars = c( "H2S uM", 
                          "FeII(uM)",
                          "FeTot(uM)", 
                          "FeIII(uM)",  
                          "P real (uM)", 
                          "NH4", 
-                         "DO (mg/L)",  
-                         "P", 
-                         "S",      
+                         "SO",
+                         "NO",
                          "Br",
                          "Fl", 
                          "Cl"), na.rm = TRUE)
@@ -133,19 +155,39 @@ melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated"),
 nest_inc <- molten_inc %>% group_by(variable) %>% nest()
 
 # create plots for all parameters
-pmap(list(nest_inc$data, c( "H2S", 
-                         "FeII",
-                         "FeTot", 
-                         "FeIII",  
-                         "P (photometric)", 
-                         "NH4", 
-                         "DO",  
-                         "P (IC)", 
-                         "Sulphate",      
-                         "Br",
-                         "F", 
-                         "Cl")), ~ ggplot(..1 , mapping = aes(x = time , y = value, color = treated, by = Core.photometric)) + geom_point() + geom_line() + theme(aspect.ratio = 0.5) + facet_wrap(~oxic_state) + labs(title = ..2))
 
+
+IC_incubation_graph <- 
+  ggplot(molten_inc, 
+       mapping = aes(x = time , 
+                     y = value, 
+                     color = treated, 
+                     shape = Location, 
+                     by = Core.photometric)
+       ) + 
+  scale_color_manual( values=c("treated" = "red", "nontreated" = "blue")) +
+  scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
+  geom_point() + 
+  geom_line() + 
+  theme(aspect.ratio = 0.5,
+        axis.text.y   = element_text(size=14),
+        axis.text.x   = element_text(size=14),
+        axis.title.y  = element_text(size=14),
+        axis.title.x  = element_text(size=14),
+        strip.text.y   = element_text(size=14),
+        strip.text.x   = element_text(size=14),
+        
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1)
+        ) + 
+  facet_grid(variable ~ oxic_state, scales = "free_y",switch = "y") + labs(title = "Incubations")
+
+ggsave(paste("IC_incubations.png",sep=""), plot =IC_incubation_graph, path = path.expand(here("index","figures")),
+
+       width =23, height = 50,units = "cm",dpi = 600)
 
 ```
 
