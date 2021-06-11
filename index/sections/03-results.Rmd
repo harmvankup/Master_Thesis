@@ -212,7 +212,7 @@ Seq_extr_data <- read_excel(here("index","data","Seq_extr_data.xlsx"))
 Detlim_Fe_MgCl <- 0.068
 Detlim_Fe_HCl <- 0.021
 Detlim_Fe_HNO <- 0.035
-Detlim_P_Mg <- 0.097
+Detlim_P_MgCl <- 0.097
 Detlim_P_HCl <- 0.043
 Detlim_P_HNO <- 0.057
 
@@ -253,13 +253,13 @@ mM_to_umol_p_g<- function(  Dens,
 }
 
 # Transform raw data.
-Seq_extr_data %>% 
+Seq_extr_trans <-  Seq_extr_data %>% 
   mutate(
     Location = case_when(
         str_detect(Station,"A")  ~ "A",
-        str_detect(Station,"B")  ~ "B",
-        str_detect(Station,"C")  ~ "C",
-        str_detect(Station,"D")  ~ "D",
+        str_detect(Station,"-B")  ~ "B",
+        str_detect(Station,"-C")  ~ "C",
+        str_detect(Station,"-D")  ~ "D",
         T ~ "blank"),
     Incubation = case_when(
         str_detect(Station, "1\\.") ~ "before",
@@ -308,7 +308,103 @@ Seq_extr_data %>%
                                   sample_weight = sample_weight_A, 
                                   detlim = Detlim_Fe_HNO,
                                   ppm = ICP_HNO_Fe*10),
-    ) %>% view()
+    P_MgCl_A_calc = ppm_to_umol_p_g(mol_weight = mw_P, 
+                                  Dens = d_MgCl, 
+                                  total_weight = weight_MgCl_A, 
+                                  sample_weight = sample_weight_A, 
+                                  detlim = Detlim_P_MgCl,
+                                  ppm = ICP_MgCl_A_P),
+    P_HCl_calc = ppm_to_umol_p_g(mol_weight = mw_P, 
+                                  Dens = d_HCl, 
+                                  total_weight = weight_HCl, 
+                                  sample_weight = sample_weight_A, 
+                                  detlim = Detlim_P_HCl,
+                                  ppm = ICP_HCl_P),
+    P_HNO_calc = ppm_to_umol_p_g(mol_weight = mw_P, 
+                                  Dens = d_HNO, 
+                                  total_weight = weight_HNO, 
+                                  sample_weight = sample_weight_A, 
+                                  detlim = Detlim_P_HNO,
+                                  ppm = ICP_HNO_P*10)
+    ) 
+
+Seq_extr_dr <-Seq_extr_trans %>% 
+                  filter(Incubation != "blank") %>% 
+                  group_by(Station) %>% 
+                  mutate(Fe_MgCl_A = mean(Fe_MgCl_A_calc),
+                         Fe_MgCl_B = mean(Fe_MgCl_B_calc),
+                         Fe_HCl_FeII = mean(FeII_HCl_calc),
+                         Fe_HCl_FeIII = mean(FeIII_HCl_calc),
+                         Fe_HNO = mean(Fe_HNO_calc),
+                         PyroP = mean(Fe_pyroP_calc),
+                         Fe_HClminPP = mean(Fetot_HCl_calc)-mean(Fe_pyroP_calc),
+                         P_MgCl_A = mean(P_MgCl_A_calc),
+                         P_HCl = mean(P_HCl_calc),
+                         P_HNO = mean(P_HNO_calc)) %>% 
+                  distinct(Station, .keep_all = TRUE) %>% 
+                  ungroup 
+
+seq_extr_A_Fe_molten <- Seq_extr_dr %>% 
+                  select("depth","Location","Incubation", Fe_MgCl_A, Fe_HCl_FeII, Fe_HCl_FeIII, Fe_HNO) %>% 
+                  melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
+                  
+seq_extr_B_Fe_molten <- Seq_extr_dr %>% 
+                  select("depth","Location","Incubation", Fe_MgCl_B, PyroP,Fe_HClminPP, Fe_HNO) %>% 
+                  melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
+                  
+seq_extr_A_P_molten <- Seq_extr_dr %>% 
+                  select("depth","Location","Incubation", P_MgCl_A, P_HCl, P_HNO) %>% 
+                  melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
+
+list_sq_extr_plots <-  list(seq_extr_A_Fe_molten, seq_extr_B_Fe_molten, seq_extr_A_P_molten)
+                  
+for (i in 1:length(list_sq_extr_plots)) {
+  
+  j <- ggplot(list_sq_extr_plots[[i]], 
+       aes(fill=Fraction, 
+           y=value, 
+           x=depth),
+       scale_x_discrete(position = 'top'))+
+    geom_area(
+      aes(color = Fraction),
+      stat = "identity", position = position_stack(reverse=TRUE))+
+    geom_point(
+      aes(color = Fraction),
+      stat = "identity", position = position_stack(reverse=TRUE),color="black")+
+    geom_line(
+      aes(color = Fraction),
+      stat = "identity", position = position_stack(reverse=TRUE),color="black")+
+    coord_flip()+
+    scale_x_reverse()+ 
+    xlab("Depth (mm)")+ 
+    scale_y_continuous(breaks=NULL,labels=NULL,name=NULL,sec.axis = sec_axis(~ . *1,name=expression(paste("Extracted Fe (",mu,"mol'*g DW"^-1,")"))))+
+    ylab(expression(paste("Extracted Fe (",mu,"mol gDW"^-1,")")))+
+    theme_classic()+
+    scale_color_grey()+ 
+    scale_fill_brewer(palette = "Reds",direction = -1)+
+    theme(axis.title=element_text(size=28),plot.title = element_text(hjust = 0.5),
+          axis.text=element_text(size=24,angle = 0, hjust = 0.5),
+          panel.grid.major = element_blank(), 
+          panel.grid.minor = element_blank(),
+          legend.title = element_text( size = 20),
+          legend.text = element_text(size = 20)) +
+    facet_grid(Location ~ Incubation)
+
+ggsave(paste("seq_extr_Fe_",i,".png",sep=""), plot =j, path = path.expand(here("index","figures")),
+
+       width =30, height = 50,units = "cm",dpi = 600)
+  
+}
+
+seq_extr_Fe <- ggplot(Seq_extr_dr, 
+      mapping = aes( 
+           y=Fe_MgCl_A, 
+           x=Fe_MgCl_B),
+       scale_x_discrete(position = 'top')) +
+    geom_point(
+      stat = "identity", position = position_stack(reverse=TRUE),color="black")
+show(seq_extr_Fe)
+ 
 
 ```
 
