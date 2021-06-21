@@ -131,6 +131,49 @@ full_join(
         str_detect(samplenr,"-\\C")  ~ "C",
         str_detect(samplenr,"-\\D")  ~ "D")) 
 
+# slope of NH4 line
+
+initinc <- inc_data %>% filter(time < 10 ) %>% mutate(NH4mol = 0.001*NH4*`volume_(ml)` ) %>% view
+initplot <- ggplot( initinc,
+       mapping = aes(x = time , 
+                     y = NH4mol, 
+                     color = treated, 
+                     shape = Location, 
+                     by = Core.photometric)
+       ) + 
+  scale_color_manual( values=c("treated" = "red", "nontreated" = "blue")) +
+  scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
+  geom_point() + 
+  geom_line() + 
+  stat_smooth(method = "lm") +
+  facet_grid(~ oxic_state)
+  
+
+show(initplot)
+
+initslopes <- initinc %>%  group_by(Core.photometric) %>% 
+  summarize(NH4slope = coef(lm(NH4mol ~ time))[2]
+            ) %>% filter(str_detect(Core.photometric,"3\\.")) %>%  add_column(
+O2slope = c(-0.172133,
+-0.404987,
+-0.360635,
+-0.0793467,
+-0.370374,
+-0.174982,
+-0.227892,
+-0.167105
+)) %>% mutate(O2_umol_day = -1000*(O2slope*24)/31.9988) 
+
+initreg <- ggplot(initslopes, 
+      mapping = aes( 
+           y=NH4slope, 
+           x=O2_umol_day),
+       scale_x_discrete(position = 'top')) +
+    geom_point(
+      stat = "identity", position = position_stack(reverse=TRUE),color="black") 
+    
+show(initreg)
+
 # reshape the data by melting all variables, and grouping them by parameter.
 
 molten_inc <- inc_data %>% select("Core.photometric", 
@@ -344,6 +387,7 @@ Seq_extr_trans <-  Seq_extr_data %>%
                                   ppm = ICP_HNO_P*10)
     ) 
 
+# Middle all duplicates
 Seq_extr_dr <-Seq_extr_trans %>% 
                   filter(Incubation != "blank") %>% 
                   group_by(Station) %>% 
@@ -364,6 +408,8 @@ Seq_extr_dr <-Seq_extr_trans %>%
                   distinct(Station, .keep_all = TRUE) %>% 
                   ungroup 
 
+
+# create figures 
 seq_extr_A_Fe_molten <- Seq_extr_dr %>% 
                   select("depth","Location","Incubation", Fe_MgCl_A, Fe_HCl_FeII, Fe_HCl_FeIII, Fe_CDB, Fe_HNO) %>% 
                   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
@@ -377,7 +423,8 @@ seq_extr_A_P_molten <- Seq_extr_dr %>%
                   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
 
 list_sq_extr_plots <-  list(seq_extr_A_Fe_molten, seq_extr_B_Fe_molten, seq_extr_A_P_molten)
-                  
+
+
 for (i in 1:length(list_sq_extr_plots)) {
   
   j <- ggplot(list_sq_extr_plots[[i]], 
