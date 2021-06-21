@@ -213,16 +213,18 @@ Seq_extr_data <- read_excel(here("index","data","Seq_extr_data.xlsx"))
 # define detection limits as given by ICP report
 Detlim_Fe_MgCl <- 0.068
 Detlim_Fe_HCl <- 0.021
+Detlim_Fe_CDB <- 0.1071
 Detlim_Fe_HNO <- 0.035
 Detlim_P_MgCl <- 0.097
 Detlim_P_HCl <- 0.043
+Detlim_P_CDB <- 0.0976
 Detlim_P_HNO <- 0.057
 
 # density of extractants and molar weight of Fe and P
 d_MgCl <- 1.0467
 d_pyroP <- 1.0402
 d_HCl <- 1.0152
-d_CBD <- 1.0887
+d_CDB <- 1.0887
 d_HNO <- 1.414
 mw_Fe <- 55.845
 mw_P <- 30.973762
@@ -304,6 +306,12 @@ Seq_extr_trans <-  Seq_extr_data %>%
                                     total_weight = weight_HCl,
                                     sample_weight = sample_weight_A,
                                     mM = Col_HCl_FeIII),
+    Fe_CDB_calc = ppm_to_umol_p_g(mol_weight = mw_Fe, 
+                                  Dens = d_CDB, 
+                                  total_weight = weight_CDB, 
+                                  sample_weight = sample_weight_A, 
+                                  detlim = Detlim_Fe_CDB,
+                                  ppm = ICP_CDB_Fe),
     Fe_HNO_calc = ppm_to_umol_p_g(mol_weight = mw_Fe, 
                                   Dens = d_HNO, 
                                   total_weight = weight_HNO, 
@@ -322,6 +330,12 @@ Seq_extr_trans <-  Seq_extr_data %>%
                                   sample_weight = sample_weight_A, 
                                   detlim = Detlim_P_HCl,
                                   ppm = ICP_HCl_P),
+    P_CDB_calc = ppm_to_umol_p_g(mol_weight = mw_P, 
+                                  Dens = d_CDB, 
+                                  total_weight = weight_CDB, 
+                                  sample_weight = sample_weight_A, 
+                                  detlim = Detlim_P_CDB,
+                                  ppm = ICP_CDB_P),
     P_HNO_calc = ppm_to_umol_p_g(mol_weight = mw_P, 
                                   Dens = d_HNO, 
                                   total_weight = weight_HNO, 
@@ -337,25 +351,29 @@ Seq_extr_dr <-Seq_extr_trans %>%
                          Fe_MgCl_B = mean(Fe_MgCl_B_calc),
                          Fe_HCl_FeII = mean(FeII_HCl_calc),
                          Fe_HCl_FeIII = mean(FeIII_HCl_calc),
+                         Fe_CDB = mean(Fe_CDB_calc),
                          Fe_HNO = mean(Fe_HNO_calc),
                          PyroP = mean(Fe_pyroP_calc),
+                         Fe_HCl_ICP = mean(Fe_HCl_calc),
+                         Fe_HCl_col = mean(Fetot_HCl_calc),
                          Fe_HClminPP = mean(Fetot_HCl_calc)-mean(Fe_pyroP_calc),
                          P_MgCl_A = mean(P_MgCl_A_calc),
                          P_HCl = mean(P_HCl_calc),
+                         P_CDB = mean(P_CDB_calc),
                          P_HNO = mean(P_HNO_calc)) %>% 
                   distinct(Station, .keep_all = TRUE) %>% 
                   ungroup 
 
 seq_extr_A_Fe_molten <- Seq_extr_dr %>% 
-                  select("depth","Location","Incubation", Fe_MgCl_A, Fe_HCl_FeII, Fe_HCl_FeIII, Fe_HNO) %>% 
+                  select("depth","Location","Incubation", Fe_MgCl_A, Fe_HCl_FeII, Fe_HCl_FeIII, Fe_CDB, Fe_HNO) %>% 
                   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
                   
 seq_extr_B_Fe_molten <- Seq_extr_dr %>% 
-                  select("depth","Location","Incubation", Fe_MgCl_B, PyroP,Fe_HClminPP, Fe_HNO) %>% 
+                  select("depth","Location","Incubation", Fe_MgCl_B, PyroP, Fe_HClminPP, Fe_CDB, Fe_HNO) %>% 
                   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
                   
 seq_extr_A_P_molten <- Seq_extr_dr %>% 
-                  select("depth","Location","Incubation", P_MgCl_A, P_HCl, P_HNO) %>% 
+                  select("depth","Location","Incubation", P_MgCl_A, P_HCl, P_CDB, P_HNO) %>% 
                   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
 
 list_sq_extr_plots <-  list(seq_extr_A_Fe_molten, seq_extr_B_Fe_molten, seq_extr_A_P_molten)
@@ -398,13 +416,27 @@ ggsave(paste("seq_extr_Fe_",i,".png",sep=""), plot =j, path = path.expand(here("
   
 }
 
+eq <- function(x,y) {
+  m <- lm(y ~ x)
+  as.character(
+    as.expression(
+      substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2,
+                list(a = format(coef(m)[1], digits = 4),
+                b = format(coef(m)[2], digits = 4),
+                r2 = format(summary(m)$r.squared, digits = 3)))
+    )
+  )
+}
+
 seq_extr_Fe <- ggplot(Seq_extr_dr, 
       mapping = aes( 
-           y=Fe_MgCl_A, 
-           x=Fe_MgCl_B),
+           y=Fe_HCl_ICP, 
+           x=Fe_HCl_col),
        scale_x_discrete(position = 'top')) +
     geom_point(
-      stat = "identity", position = position_stack(reverse=TRUE),color="black")
+      stat = "identity", position = position_stack(reverse=TRUE),color="black") +
+    stat_smooth(method = "lm")+
+    geom_text(x = 25, y = 300, label = eq(Seq_extr_dr$Fe_HCl_col, Seq_extr_dr$Fe_HCl_ICP), parse = TRUE)
 show(seq_extr_Fe)
  
 
