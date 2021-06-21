@@ -114,6 +114,8 @@ full_join(
   suffix = c(".photometric", ".IC"),
   keep = FALSE
 ) %>% 
+  mutate(HS = 1.1*(((H2SuM*1.13759603802245)/0.026915542)/1000)
+) %>% 
   mutate(oxic_state =
       case_when(
         str_detect(samplenr,"2\\.")  ~ "oxic",
@@ -134,7 +136,7 @@ full_join(
 molten_inc <- inc_data %>% select("Core.photometric", 
                                   "samplenr",
                                   "time", 
-                                  "H2SuM", 
+                                  "HS", 
                                   "FeTot(uM)", 
                                   "Preal(uM)", 
                                    "NH4", 
@@ -144,7 +146,7 @@ molten_inc <- inc_data %>% select("Core.photometric",
                                   "treated", 
                                   "Location") %>% 
 melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated","Location"), 
-     measured_.vars = c( "H2SuM", 
+     measured_.vars = c( "HS", 
                          "FeTot(uM)", 
                          "Preal(uM)", 
                          "NH4", 
@@ -154,7 +156,7 @@ melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated","
 nest_inc <- molten_inc %>% group_by(variable) %>% nest()
 
 # create plots for all parameters
-Lables = as_labeller( c(  "H2SuM" = "HS^'-'", 
+Lables = as_labeller( c(  "HS" = "HS^'-'", 
                           "FeII(uM)" = "Fe^'2+'",
                           "FeTot(uM)" = "Fe[tot]", 
                           "FeIII(uM)" = "Fe^'3+'",  
