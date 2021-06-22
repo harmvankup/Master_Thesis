@@ -1,6 +1,6 @@
 # Results
 
-```{r pwgraphs, echo=FALSE}
+```{r pwgraphs, include = FALSE, echo=FALSE}
 
 
 # import raw data
@@ -86,7 +86,7 @@ ggsave(paste("IC_profiles.png",sep=""), plot =IC_profile_plots, path = path.expa
 
 
 
-``` {r ICinc, echo = FALSE}
+``` {r ICinc, include = FALSE, echo = FALSE}
 
 incubationgraph <- read_excel(here("index","data","incubationgraph.xlsx"))
 
@@ -114,7 +114,10 @@ full_join(
   suffix = c(".photometric", ".IC"),
   keep = FALSE
 ) %>% 
-  mutate(HS = 1.1*(((H2SuM*1.13759603802245)/0.026915542)/1000)
+  mutate(HS = 1.1*(((H2SuM*1.13759603802245)/0.026915542)/1000),
+         PFe = Preal/FeTot,
+         FeIIFeIII = FeII/FeIII, 
+         FeIIFetot = FeII/FeTot
 ) %>% 
   mutate(oxic_state =
       case_when(
@@ -131,48 +134,7 @@ full_join(
         str_detect(samplenr,"-\\C")  ~ "C",
         str_detect(samplenr,"-\\D")  ~ "D")) 
 
-# slope of NH4 line
 
-initinc <- inc_data %>% filter(time < 10 ) %>% mutate(NH4mol = 0.001*NH4*`volume_(ml)` ) %>% view
-initplot <- ggplot( initinc,
-       mapping = aes(x = time , 
-                     y = NH4mol, 
-                     color = treated, 
-                     shape = Location, 
-                     by = Core.photometric)
-       ) + 
-  scale_color_manual( values=c("treated" = "red", "nontreated" = "blue")) +
-  scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
-  geom_point() + 
-  geom_line() + 
-  stat_smooth(method = "lm") +
-  facet_grid(~ oxic_state)
-  
-
-show(initplot)
-
-initslopes <- initinc %>%  group_by(Core.photometric) %>% 
-  summarize(NH4slope = coef(lm(NH4mol ~ time))[2]
-            ) %>% filter(str_detect(Core.photometric,"3\\.")) %>%  add_column(
-O2slope = c(-0.172133,
--0.404987,
--0.360635,
--0.0793467,
--0.370374,
--0.174982,
--0.227892,
--0.167105
-)) %>% mutate(O2_umol_day = -1000*(O2slope*24)/31.9988) 
-
-initreg <- ggplot(initslopes, 
-      mapping = aes( 
-           y=NH4slope, 
-           x=O2_umol_day),
-       scale_x_discrete(position = 'top')) +
-    geom_point(
-      stat = "identity", position = position_stack(reverse=TRUE),color="black") 
-    
-show(initreg)
 
 # reshape the data by melting all variables, and grouping them by parameter.
 
@@ -180,8 +142,8 @@ molten_inc <- inc_data %>% select("Core.photometric",
                                   "samplenr",
                                   "time", 
                                   "HS", 
-                                  "FeTot(uM)", 
-                                  "Preal(uM)", 
+                                  "FeTot", 
+                                  "Preal", 
                                    "NH4", 
                                    "SO",
                                    "NO",
@@ -190,8 +152,8 @@ molten_inc <- inc_data %>% select("Core.photometric",
                                   "Location") %>% 
 melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated","Location"), 
      measured_.vars = c( "HS", 
-                         "FeTot(uM)", 
-                         "Preal(uM)", 
+                         "FeTot", 
+                         "Preal", 
                          "NH4", 
                          "SO",
                          "NO"), na.rm = TRUE)
@@ -200,10 +162,10 @@ nest_inc <- molten_inc %>% group_by(variable) %>% nest()
 
 # create plots for all parameters
 Lables = as_labeller( c(  "HS" = "HS^'-'", 
-                          "FeII(uM)" = "Fe^'2+'",
-                          "FeTot(uM)" = "Fe[tot]", 
-                          "FeIII(uM)" = "Fe^'3+'",  
-                          "Preal(uM)" = "PO[4]^'3-'",
+                          "FeII" = "Fe^'2+'",
+                          "FeTot" = "Fe[tot]", 
+                          "FeIII" = "Fe^'3+'",  
+                          "Preal" = "PO[4]^'3-'",
                           "NH4" = "NH[4]^'+'",
                           "P"  = "PO[4]^'3-'",                      
                           "SO" = "SO[4]^'2-'", 
@@ -244,11 +206,86 @@ ggsave(paste("IC_incubations.png",sep=""), plot =IC_incubation_graph, path = pat
 
        width =20, height = 20,units = "cm",dpi = 600)
 
+# slope of NH4 line
+
+initinc <- inc_data %>% filter(time < 10 ) %>% mutate(NH4mol = 0.001*NH4*`volume_(ml)` ) %>% view
+initplot <- ggplot( initinc,
+       mapping = aes(x = time , 
+                     y = NH4mol, 
+                     color = treated, 
+                     shape = Location, 
+                     by = Core.photometric)
+       ) + 
+  scale_color_manual( values=c("treated" = "red", "nontreated" = "blue")) +
+  scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
+  geom_point() + 
+  geom_line() + 
+  stat_smooth(method = "lm") +
+  facet_grid(~ oxic_state)
+  
+
+show(initplot)
+
+initslopes <- initinc %>%  group_by(Core.photometric) %>% 
+  summarize(NH4slope = coef(lm(NH4mol ~ time))[2]
+            ) %>% filter(str_detect(Core.photometric,"3\\.")) %>%  add_column(
+O2slope = c(-0.172133,
+-0.404987,
+-0.360635,
+-0.0793467,
+-0.370374,
+-0.174982,
+-0.227892,
+-0.167105
+)) %>% mutate(C_est = NH4slope*6.6, O2_umol_day = -1000*(O2slope*24)/31.9988, C_mg_day = -30*(O2slope*24)/31.9988) %>% view
+
+initreg <- ggplot(initslopes, 
+      mapping = aes( 
+           y=NH4slope, 
+           x=O2_umol_day),
+       scale_x_discrete(position = 'top')) +
+    geom_point(
+      stat = "identity", position = position_stack(reverse=TRUE),color="black") 
+    
+# some statistics, P to Fe ratio
+
+inc_data %>%  group_by(Core.photometric) %>% summarise(PtoFe = mean(PFe, na.rm = TRUE), FeIItoFeIII = mean(FeIIFeIII, na.rm = TRUE), FeIItoFetot = mean(FeIIFetot, na.rm = TRUE)) %>% view
+
+PFe_bp <- ggplot(inc_data, mapping = aes(x = Core.photometric, y = PFe)) + geom_boxplot()
+FeIIFeIII_bp <- ggplot(inc_data, mapping = aes(x = Core.photometric, y = FeIIFetot)) + geom_boxplot()
+show(FeIIFeIII_bp)
+
+
+PFe_inc_plot <-  ggplot(inc_data, 
+       mapping = aes(x = time , 
+                     y = PFe, 
+                     color = treated, 
+                     shape = Location, 
+                     by = Core.photometric)
+       ) + 
+  scale_color_manual( values=c("treated" = "red", "nontreated" = "blue")) +
+  scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
+  geom_point() + 
+  geom_line() + facet_grid(Location ~ oxic_state, scales = "free_y",switch = "y")
+
+FeIIFetot_inc_plot <-  ggplot(inc_data, 
+       mapping = aes(x = time , 
+                     y = FeIIFeIII, 
+                     color = treated, 
+                     shape = Location, 
+                     by = Core.photometric)
+       ) + 
+  scale_color_manual( values=c("treated" = "red", "nontreated" = "blue")) +
+  scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
+  geom_point() + 
+  geom_line() + facet_grid(Location ~ oxic_state, scales = "free_y")
+show(FeIIFetot_inc_plot)
+
 ```
 
 
 
-```{r Feseq, echo=FALSE}
+```{r Feseq, include = FALSE, echo=FALSE}
 #import sequential extraction data.
 Seq_extr_data <- read_excel(here("index","data","Seq_extr_data.xlsx"))
 
@@ -312,6 +349,7 @@ Seq_extr_trans <-  Seq_extr_data %>%
         str_detect(Station, "1\\.") ~ "before",
         str_detect(Station, "3\\.")  ~ "after",
         T ~ "blank" ),
+    Core = str_sub(Station, end = 7),
     Fe_MgCl_A_calc = ppm_to_umol_p_g(mol_weight = mw_Fe, 
                                   Dens = d_MgCl, 
                                   total_weight = weight_MgCl_A, 
@@ -404,12 +442,16 @@ Seq_extr_dr <-Seq_extr_trans %>%
                          P_MgCl_A = mean(P_MgCl_A_calc),
                          P_HCl = mean(P_HCl_calc),
                          P_CDB = mean(P_CDB_calc),
-                         P_HNO = mean(P_HNO_calc)) %>% 
+                         P_HNO = mean(P_HNO_calc),
+                         PFe_MgCl_A = mean(P_MgCl_A_calc)/mean(Fe_MgCl_A_calc),
+                         PFe_HCl = mean(P_HCl_calc)/mean(Fetot_HCl_calc),
+                         PFe_CDB = mean(P_CDB_calc)/mean(Fe_CDB_calc),
+                         PFe_HNO = mean(P_HNO_calc)/mean(Fe_HNO_calc)) %>% 
                   distinct(Station, .keep_all = TRUE) %>% 
                   ungroup 
 
 
-# create figures 
+# create molten dataframes for figures 
 seq_extr_A_Fe_molten <- Seq_extr_dr %>% 
                   select("depth","Location","Incubation", Fe_MgCl_A, Fe_HCl_FeII, Fe_HCl_FeIII, Fe_CDB, Fe_HNO) %>% 
                   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
@@ -422,8 +464,13 @@ seq_extr_A_P_molten <- Seq_extr_dr %>%
                   select("depth","Location","Incubation", P_MgCl_A, P_HCl, P_CDB, P_HNO) %>% 
                   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
 
-list_sq_extr_plots <-  list(seq_extr_A_Fe_molten, seq_extr_B_Fe_molten, seq_extr_A_P_molten)
+seq_extr_PFe_molten <- Seq_extr_dr %>% 
+                  select("depth","Location","Incubation", PFe_MgCl_A, PFe_HCl, PFe_CDB, PFe_HNO) %>% 
+                  melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
 
+
+# create sequential extraction figures
+list_sq_extr_plots <-  list(seq_extr_A_Fe_molten, seq_extr_B_Fe_molten, seq_extr_A_P_molten)
 
 for (i in 1:length(list_sq_extr_plots)) {
   
@@ -463,6 +510,43 @@ ggsave(paste("seq_extr_Fe_",i,".png",sep=""), plot =j, path = path.expand(here("
   
 }
 
+
+PFe_profile_plots <- ggplot(seq_extr_PFe_molten, mapping = aes(
+                        x = value,
+                        y = depth ,
+                        color = Location,
+                        shape = Location)
+         ) +
+       
+       scale_color_manual( values=c("A" = "red", "B" = "blue", "C" = "red", "D" = "blue")) +
+       scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
+      scale_y_reverse() +
+       geom_point() + 
+       geom_path() +
+       facet_grid(Fraction ~ Incubation, scales = "free_x", labeller = Lables) +
+       labs(  x = expression(paste("concentration in ",mu,"mol/L")), 
+              y = "Depth in cm",
+              title = "pw profiles measured with IC") +
+      theme_classic() +
+      theme(aspect.ratio = 2. ,
+            axis.text.y   = element_text(size=14),
+            axis.text.x   = element_text(size=14),
+            axis.title.y  = element_text(size=14),
+            axis.title.x  = element_text(size=14),
+            strip.text.y   = element_text(size=14),
+            strip.text.x   = element_text(size=14),
+            panel.background = element_blank(),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(colour = "black"),
+            panel.border = element_rect(colour = "black", fill=NA, size=1)
+            )
+
+show(PFe_profile_plots)
+ggsave("seq_extr_PFe.png", plot = PFe_profile_plots, path = path.expand(here("index","figures")),
+
+       width =30, height = 50,units = "cm",dpi = 600)
+# some statistical analyses
 eq <- function(x,y) {
   m <- lm(y ~ x)
   as.character(
@@ -474,6 +558,20 @@ eq <- function(x,y) {
     )
   )
 }
+
+
+
+eqdepth <- Seq_extr_dr %>% filter(depth <= 10 & depth > 0)
+
+pyr_bp = ggplot(eqdepth,
+        mapping = aes(y = Fe_HNO,
+                      x = Core)) + geom_boxplot()
+crys_bp = ggplot(eqdepth,
+        mapping = aes(y = Fe_CDB,
+                      x = Core)) + geom_boxplot()
+show(pyr_bp)
+show(crys_bp)
+group_by(Core) %>% summarise(Location = first(Location), Incubation = first(Incubation), Pyrite = mean(Fe_HNO)) %>% view
 
 seq_extr_Fe <- ggplot(Seq_extr_dr, 
       mapping = aes( 
@@ -489,7 +587,38 @@ show(seq_extr_Fe)
 
 ```
 
-* Organize material and present results.
+```{r swcalc, include = FALSE, echo=FALSE}
+
+EC_A <- c(434,	449,	433)
+EC_B <- c(446,	456,	451)
+EC_C <- c(379,	408,	400)
+EC_D <- c(392,	397,	402)
+EC <- list(EC_A, EC_B, EC_C, EC_D)
+
+for (i in 1:4) {
+ m = mean(EC[[i]])
+ s = sd(EC[[i]])
+ print(m)
+ print(s)
+  
+}
+
+t.test(EC_A, EC_B)
+t.test(EC_C, EC_D)
+t.test(c(EC_A, EC_B),c(EC_C, EC_D))
+```
+
+* The surface water at the treated and non treated locations was similar in composition and oxic conditions at time of sampling.
+* locations A and B had a significantly higher electric conductivity (438 $\mu$S and 451$\mu$S), than locations C and D (395$\mu$S and 397$\mu$S)
+* This can be explained by a higher sulphate concentration, which remains relatively high in the A and B locations deeper in the sediment.
+* Porewater profiles show high dissolved iron at 1 - 10 cm depth in treated cores. Non treated porewater contains very little iron.
+* Phosphate concentration in porewater anticorrelates with the dissolved iron, the non treated cores have more phosphate in their porewater.
+* An increase in ammonium is seen in the first 10 days in all cores. The non treated cores also show an increase in phosphate. 
+* Under anoxic conditions, iron concentrations increase in the treated cores, followed by an increase in phosphate.
+* After the initial increase, concentrations of NH4, Fe and P stabilize. The oxic cores show a decrease in P and NH4 levels, and an increase in nitrate concentration. In the anoxic incubations, this is followed by an increase in sulphide in the non treated cores, but not in the treated locations.
+* 
+
+
 
 * Use tables, figures (but prefer visual presentation):
 
