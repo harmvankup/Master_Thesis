@@ -18,7 +18,12 @@ ICplotdata  <- IC_raw_data %>%
   mutate(treated =
       case_when(
         str_detect(sample,"A|C")  ~ "treated",
-        str_detect(sample,"B|D")  ~ "nontreated")) %>% left_join(
+        str_detect(sample,"B|D")  ~ "nontreated"),
+      Incubation = 
+        case_when(
+        str_detect(sample, "1\\.") ~ "before",
+        str_detect(sample, "3\\.")  ~ "after",
+        T ~ "blank" )) %>% left_join(
   pw_photometric,
   by = c("sample" = "Sample"),
   copy = FALSE,
@@ -27,8 +32,8 @@ ICplotdata  <- IC_raw_data %>%
 ) %>%  group_by(location) %>% arrange(cm_below_swi) 
 
 # reshape data.
-molten_IC_core_data <- ICplotdata %>% select("location", "sample", "cm_below_swi", "SO" : "treated") %>% 
-melt(id.vars = c("location", "sample", "cm_below_swi", "treated"), 
+molten_IC_core_data <- ICplotdata %>% select("location", "sample", "cm_below_swi", "SO" : "Incubation") %>% 
+melt(id.vars = c("location", "sample", "cm_below_swi", "treated", "Incubation"), 
      measured_.vars = c(  
                          "SO", 
                          "NO",
@@ -59,7 +64,7 @@ IC_profile_plots <- ggplot(molten_IC_core_data, mapping = aes(
       scale_y_reverse() +
        geom_point() + 
        geom_path() +
-       facet_grid(cols = vars(variable), scales = "free_x", labeller = Lables) +
+       facet_grid(Incubation ~ variable, scales = "free_x", labeller = Lables) +
        labs(  x = expression(paste("concentration in ",mu,"mol/L")), 
               y = "Depth in cm",
               title = "pw profiles measured with IC") +
@@ -569,8 +574,20 @@ pyr_bp = ggplot(eqdepth,
 crys_bp = ggplot(eqdepth,
         mapping = aes(y = Fe_CDB,
                       x = Core)) + geom_boxplot()
+HCl_bp = ggplot(eqdepth,
+        mapping = aes(y = Fe_HCl_col,
+                      x = Core)) + geom_boxplot()
+org_bp = ggplot(eqdepth,
+        mapping = aes(y = PyroP,
+                      x = Core)) + geom_boxplot()
+salt_bp = ggplot(eqdepth,
+        mapping = aes(y = Fe_MgCl_A,
+                      x = Core)) + geom_boxplot()
 show(pyr_bp)
 show(crys_bp)
+show(HCl_bp)
+show(org_bp)
+show(salt_bp)
 eqdepth %>% group_by(Core) %>% summarise(Location = first(Location), Incubation = first(Incubation), Pyrite = mean(Fe_HNO)) %>% view
 
 seq_extr_Fe <- ggplot(Seq_extr_dr, 
