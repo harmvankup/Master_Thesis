@@ -588,7 +588,8 @@ show(crys_bp)
 show(HCl_bp)
 show(org_bp)
 show(salt_bp)
-eqdepth %>% group_by(Core) %>% summarise(Location = first(Location), Incubation = first(Incubation), Pyrite = mean(Fe_HNO)) %>% view
+
+eqdepth %>% group_by(Core) %>% summarise(Location = first(Location), Incubation = first(Incubation), Pyrite = mean(Fe_HNO), sumPyrite = sum(Fe_HNO)) %>% view
 
 seq_extr_Fe <- ggplot(Seq_extr_dr, 
       mapping = aes( 
@@ -636,8 +637,9 @@ t.test(c(EC_A, EC_B),c(EC_C, EC_D))
 * The sequential extraction data shows that iron is much more abundant in the treated cores than in the non treated. 
 * The largest fraction in the treated cores is HCl, which targets carbonates and reactive iron oxides. In the non treated cores the HCl fraction is much less and is constrained to the top few cm.
 * Pyrite is the most abundand iron phase in the reference cores, and are distributed uniformely over depth. The treated cores contain less pyrite in the top 10 cm.
-* 
-
+* The abundance of phosphate correlates with iron. The P/Fe ratio stays constant over depth, though it changes at circa 15 cm depth, and is dependant on treatment and phase. (table)
+* With the exception of pyrite, all phases have decreased significantly in the top 10 cm after anoxic incubation. Pyrite increased slightly in the non treated cores, but not in the treated ones. (table)
+* The layer where iron abundancy is maximal has migrated upwards after anoxic incubating. This holds also for the depth where P/Fe ratio of treated converges with the reference.
 
 
 
