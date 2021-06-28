@@ -9,6 +9,30 @@
 IC_raw_data <- read_excel(path.expand(here("index","data", "IC_raw_data.xlsx")))
 pw_photometric <-  read_excel(path.expand(here("index","data", "pw_P_photometric.xlsx")))
 
+
+#Statistics of duplicates.
+stat_IC <- IC_raw_data[duplicated(IC_raw_data$sample)|duplicated(IC_raw_data$sample, fromLast=TRUE),] %>%
+  group_by(sample) %>% 
+  summarize(P = mean(Phosphate),
+            "SO" = mean(Sulphate), 
+            NO = mean(Nitrate), 
+            "Br" = mean(Bromide), 
+            "Fl" = mean(Fluoride), 
+            "Cl" = mean(Chloride),
+            DP = abs(diff(Phosphate)),
+            "DSO" = abs(diff(Sulphate)), 
+            DNO = abs(diff(Nitrate)), 
+            "DBr" = abs(diff(Bromide)), 
+            "DFl" = abs(diff(Fluoride)), 
+            "DCl" = abs(diff(Chloride))) 
+hist_IC <-  stat_IC %>% select("DP":"DCl") %>% melt() %>% ggplot( aes(x = value)) + geom_histogram() + facet_grid(~variable)
+
+for (i in 8:13) {
+  d = mean(pull(stat_IC[i]))
+  print(d)
+  
+}
+
 # Transform the raw data to middle duplicates.
 ICplotdata  <- IC_raw_data %>% 
   filter(str_detect(sample,"pw|sw")) %>% 
@@ -163,8 +187,6 @@ melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated","
                          "SO",
                          "NO"), na.rm = TRUE)
 
-nest_inc <- molten_inc %>% group_by(variable) %>% nest()
-
 # create plots for all parameters
 Lables = as_labeller( c(  "HS" = "HS^'-'", 
                           "FeII" = "Fe^'2+'",
@@ -229,8 +251,6 @@ initplot <- ggplot( initinc,
   facet_grid(~ oxic_state)
   
 
-show(initplot)
-
 initslopes <- initinc %>%  group_by(Core.photometric) %>% 
   summarize(NH4slope = coef(lm(NH4mol ~ time))[2]
             ) %>% filter(str_detect(Core.photometric,"3\\.")) %>%  add_column(
@@ -242,7 +262,7 @@ O2slope = c(-0.172133,
 -0.174982,
 -0.227892,
 -0.167105
-)) %>% mutate(C_est = NH4slope*6.6, O2_umol_day = -1000*(O2slope*24)/31.9988, C_mg_day = -30*(O2slope*24)/31.9988) %>% view
+)) %>% mutate(C_est = NH4slope*6.6, O2_umol_day = -1000*(O2slope*24)/31.9988, C_mg_day = -30*(O2slope*24)/31.9988)
 
 initreg <- ggplot(initslopes, 
       mapping = aes( 
@@ -254,7 +274,7 @@ initreg <- ggplot(initslopes,
     
 # some statistics, P to Fe ratio
 
-inc_data %>%  group_by(Core.photometric) %>% summarise(PtoFe = mean(PFe, na.rm = TRUE), FeIItoFeIII = mean(FeIIFeIII, na.rm = TRUE), FeIItoFetot = mean(FeIIFetot, na.rm = TRUE)) %>% view
+inc_data %>%  group_by(Core.photometric) %>% summarise(PtoFe = mean(PFe, na.rm = TRUE), FeIItoFeIII = mean(FeIIFeIII, na.rm = TRUE), FeIItoFetot = mean(FeIIFetot, na.rm = TRUE)) 
 
 PFe_bp <- ggplot(inc_data, mapping = aes(x = Core.photometric, y = PFe)) + geom_boxplot()
 FeIIFeIII_bp <- ggplot(inc_data, mapping = aes(x = Core.photometric, y = FeIIFetot)) + geom_boxplot()
@@ -470,7 +490,7 @@ seq_extr_A_P_molten <- Seq_extr_dr %>%
                   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
 
 seq_extr_PFe_molten <- Seq_extr_dr %>% 
-                  select("depth","Location","Incubation", PFe_MgCl_A, PFe_HCl, PFe_CDB, PFe_HNO) %>% 
+                  select("depth","Location","Incubation",  PFe_HCl, PFe_CDB, PFe_HNO) %>% 
                   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
 
 
@@ -516,7 +536,14 @@ ggsave(paste("seq_extr_Fe_",i,".png",sep=""), plot =j, path = path.expand(here("
 }
 
 
-PFe_profile_plots <- ggplot(seq_extr_PFe_molten, mapping = aes(
+# Create figure show P/Fe ratio
+Lables = as_labeller( c(  "PFe_MgCl_A" = "MgCl", 
+                          "PFe_HCl" = "HCl",
+                          "PFe_CDB" = "CBD", 
+                          "PFe_HNO" = "HNO[3]",
+                          "after" = "After",
+                          "before" = "Before") , default =  label_parsed )
+PFe_profile_plots <- ggplot(transform(seq_extr_PFe_molten, Incubation = factor(Incubation, levels = c("before","after"))), mapping = aes(
                         x = value,
                         y = depth ,
                         color = Location,
@@ -528,12 +555,13 @@ PFe_profile_plots <- ggplot(seq_extr_PFe_molten, mapping = aes(
       scale_y_reverse() +
        geom_point() + 
        geom_path() +
-       facet_grid(Fraction ~ Incubation, scales = "free_x", labeller = Lables) +
+       facet_grid(Incubation ~ Fraction, scales = "free_y", space = "free_y", labeller = Lables) +
+      
        labs(  x = expression(paste("concentration in ",mu,"mol/L")), 
               y = "Depth in cm",
               title = "pw profiles measured with IC") +
       theme_classic() +
-      theme(aspect.ratio = 2. ,
+      theme(
             axis.text.y   = element_text(size=14),
             axis.text.x   = element_text(size=14),
             axis.title.y  = element_text(size=14),
@@ -548,9 +576,40 @@ PFe_profile_plots <- ggplot(seq_extr_PFe_molten, mapping = aes(
             )
 
 show(PFe_profile_plots)
+
 ggsave("seq_extr_PFe.png", plot = PFe_profile_plots, path = path.expand(here("index","figures")),
 
        width =30, height = 50,units = "cm",dpi = 600)
+
+
+# Create a table with P/Fe ratio statistics
+PFe_range <- seq_extr_PFe_molten %>% mutate(F_range = case_when(
+                      Incubation == "before" & Fraction == "PFe_HCl" & depth < 8 & (Location == "A"| Location =="C") ~ "HClshallowT",
+                      Incubation == "before" & Fraction == "PFe_HCl" & depth < 8 & (Location == "B"| Location =="D") ~ "HClshallowN",
+                      Incubation == "before" & Fraction == "PFe_HCl" & depth > 20 & (Location == "A"| Location =="C") ~ "HCldeepT",
+                      Incubation == "before" & Fraction == "PFe_HCl" & depth > 20 & (Location == "B"| Location =="D") ~ "HCldeepN",
+                      Incubation == "before" & Fraction == "PFe_CDB" & depth < 8 & (Location == "A"| Location =="C") ~ "CBDshallowT",
+                      Incubation == "before" & Fraction == "PFe_CDB" & depth < 8 & (Location == "B"| Location =="D") ~ "CBDshallowN",
+                      Incubation == "before" & Fraction == "PFe_CDB" & depth > 20 & (Location == "A"| Location =="C") ~ "CBDdeepT",
+                      Incubation == "before" & Fraction == "PFe_CDB" & depth > 20 & (Location == "B"| Location =="D") ~ "CBDdeepN",
+                      Incubation == "before" & Fraction == "PFe_HNO" & depth < 8 & (Location == "A"| Location =="C") ~ "HNOshallowT",
+                      Incubation == "before" & Fraction == "PFe_HNO" & depth < 8 & (Location == "B"| Location =="D") ~ "HNOshallowN",     
+                      Incubation == "before" & Fraction == "PFe_HNO" & depth > 20 & (Location == "A"| Location =="C") ~ "HNOdeepT",
+                      Incubation == "before" & Fraction == "PFe_HNO" & depth > 20 & (Location == "B"| Location =="D") ~ "HNOdeepN",
+                                                   T ~ "A")) 
+group_by(PFe_range, F_range) %>% summarise(mean = mean(value), sd = sd(value)) %>% view
+
+l = list("HClshallow","HCldeep","CBDshallow","CBDdeep","HNOshallow","HNOdeep")
+for (i in 1:6) {
+  v = 
+  t.test(  pull(PFe_range[PFe_range$F_range == paste(l[i],"T", sep = ""), ], value),
+  pull(PFe_range[PFe_range$F_range == paste(l[i],"N", sep = ""), ], value)
+  )$p.value
+  print(v)
+} 
+
+
+
 # some statistical analyses
 eq <- function(x,y) {
   m <- lm(y ~ x)
@@ -589,7 +648,7 @@ show(HCl_bp)
 show(org_bp)
 show(salt_bp)
 
-eqdepth %>% group_by(Core) %>% summarise(Location = first(Location), Incubation = first(Incubation), Pyrite = mean(Fe_HNO), sumPyrite = sum(Fe_HNO)) %>% view
+eqdepth %>% group_by(Core) %>% summarise(Location = first(Location), Incubation = first(Incubation), Pyrite = mean(Fe_HNO), sumPyrite = sum(Fe_HNO)) 
 
 seq_extr_Fe <- ggplot(Seq_extr_dr, 
       mapping = aes( 
@@ -627,18 +686,31 @@ t.test(c(EC_A, EC_B),c(EC_C, EC_D))
 ```
 
 * The surface water at the treated and non treated locations was similar in composition and oxic conditions at time of sampling.
+
 * locations A and B had a significantly higher electric conductivity (438 $\mu$S and 451$\mu$S), than locations C and D (395$\mu$S and 397$\mu$S)
+
 * This can be explained by a higher sulphate concentration, which remains relatively high in the A and B locations deeper in the sediment.
+
 * Porewater profiles show high dissolved iron at 1 - 10 cm depth in treated cores. Non treated porewater contains very little iron.
+
 * Phosphate concentration in porewater anticorrelates with the dissolved iron, the non treated cores have more phosphate in their porewater.
+
 * An increase in ammonium is seen in the first 10 days in all cores. The non treated cores also show an increase in phosphate. 
+
 * Under anoxic conditions, iron concentrations increase in the treated cores, followed by an increase in phosphate.
+
 * After the initial increase, concentrations of NH4, Fe and P stabilize. The oxic cores show a decrease in P and NH4 levels, and an increase in nitrate concentration. In the anoxic incubations, this is followed by an increase in sulphide in the non treated cores, but not in the treated locations.
+
 * The sequential extraction data shows that iron is much more abundant in the treated cores than in the non treated. 
+
 * The largest fraction in the treated cores is HCl, which targets carbonates and reactive iron oxides. In the non treated cores the HCl fraction is much less and is constrained to the top few cm.
+
 * Pyrite is the most abundand iron phase in the reference cores, and are distributed uniformely over depth. The treated cores contain less pyrite in the top 10 cm.
+
 * The abundance of phosphate correlates with iron. The P/Fe ratio stays constant over depth, though it changes at circa 15 cm depth, and is dependant on treatment and phase. (table)
+
 * With the exception of pyrite, all phases have decreased significantly in the top 10 cm after anoxic incubation. Pyrite increased slightly in the non treated cores, but not in the treated ones. (table)
+
 * The layer where iron abundancy is maximal has migrated upwards after anoxic incubating. This holds also for the depth where P/Fe ratio of treated converges with the reference.
 
 
