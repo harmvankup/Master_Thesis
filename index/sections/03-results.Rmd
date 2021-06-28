@@ -143,27 +143,34 @@ full_join(
   suffix = c(".photometric", ".IC"),
   keep = FALSE
 ) %>% 
-  mutate(HS = 1.1*(((H2SuM*1.13759603802245)/0.026915542)/1000),
-         PFe = Preal/FeTot,
-         FeIIFeIII = FeII/FeIII, 
-         FeIIFetot = FeII/FeTot
-) %>% 
-  mutate(oxic_state =
-      case_when(
-        str_detect(samplenr,"2\\.")  ~ "oxic",
-        str_detect(samplenr,"3\\.")  ~ "anoxic")) %>% 
-  mutate(treated =
-      case_when(
-        str_detect(samplenr,"A|C")  ~ "treated",
-        str_detect(samplenr,"B|D")  ~ "nontreated"))  %>% 
-  mutate(Location =
-      case_when(
-        str_detect(samplenr,"A")  ~ "A",
-        str_detect(samplenr,"-B")  ~ "B",
-        str_detect(samplenr,"-\\C")  ~ "C",
-        str_detect(samplenr,"-\\D")  ~ "D")) 
+  mutate(
+         HS         = 1.1*(((H2SuM*1.13759603802245)/0.026915542)/1000),
+         PFe        = Preal/FeTot,
+         FeIIFeIII  = FeII/FeIII, 
+         FeIIFetot  = FeII/FeTot,
+         oxic_state = case_when( str_detect(samplenr,"2\\.")  ~ "oxic",
+                                 str_detect(samplenr,"3\\.")  ~ "anoxic"),
+         treated    = case_when( str_detect(samplenr,"A|C")  ~ "treated",
+                                 str_detect(samplenr,"B|D")  ~ "nontreated"),
+         Location   = case_when( str_detect(samplenr,"A")  ~ "A",
+                                 str_detect(samplenr,"-B")  ~ "B",
+                                 str_detect(samplenr,"-\\C")  ~ "C",
+                                 str_detect(samplenr,"-\\D")  ~ "D")) 
 
-
+flux_data <- inc_data %>% 
+  group_by(Core.photometric) %>%  
+  summarise(
+            treated = treated,
+            Location = Location,
+            oxic_state = oxic_state,
+            time = time, 
+            dP = c(0, diff((0.001*Preal*volume_ml)/(pi*9))/diff(time)),
+            dFe = c(0, diff((0.001*FeTot*volume_ml)/(pi*9))/diff(time)),
+            dNH = c(0, diff((0.001*NH4*volume_ml)/(pi*9))/diff(time)),
+            dSH = c(0, diff((0.001*H2SuM*volume_ml)/(pi*9))/diff(time)),
+            dNO = c(0, diff((0.001*NO*volume_ml)/(pi*9))/diff(time)),
+            dSO = c(0, diff((0.001*SO*volume_ml)/(pi*9))/diff(time))
+            ) %>% ungroup()
 
 # reshape the data by melting all variables, and grouping them by parameter.
 
@@ -187,6 +194,8 @@ melt(id.vars = c("Core.photometric","samplenr","time", "oxic_state", "treated","
                          "SO",
                          "NO"), na.rm = TRUE)
 
+molten_flux <-  melt(flux_data, id.vars = c("Core.photometric","time","oxic_state","treated","Location"))
+
 # create plots for all parameters
 Lables = as_labeller( c(  "HS" = "HS^'-'", 
                           "FeII" = "Fe^'2+'",
@@ -201,8 +210,11 @@ Lables = as_labeller( c(  "HS" = "HS^'-'",
                           "Fl" = "F^'-'", 
                           "Cl" = "Cl^'-'"), default =  label_parsed )
 
-IC_incubation_graph <- 
-  ggplot(molten_inc, 
+d <- list(molten_inc, molten_flux)
+for (i in 1:2) {
+  
+graph <- 
+     ggplot(d[[i]], 
        mapping = aes(x = time , 
                      y = value, 
                      color = treated, 
@@ -229,9 +241,11 @@ IC_incubation_graph <-
         ) + 
   facet_grid(variable ~ oxic_state, scales = "free_y",switch = "y", labeller = Lables) + labs(title = "Incubations", x= "time (days)", y = expression(paste("concentration in ",mu,"mol/L")))
 
-ggsave(paste("IC_incubations.png",sep=""), plot =IC_incubation_graph, path = path.expand(here("index","figures")),
+ggsave(paste("IC_incubations_",i,".png",sep=""), plot =graph, path = path.expand(here("index","figures")),
 
        width =20, height = 20,units = "cm",dpi = 600)
+}
+
 
 # slope of NH4 line
 
