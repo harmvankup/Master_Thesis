@@ -1,117 +1,5 @@
 # Results
 
-```{r pwgraphs, include = FALSE, echo=FALSE}
-
-
-# import raw data
-
-
-IC_raw_data <- read_excel(path.expand(here("index","data", "IC_raw_data.xlsx")))
-pw_photometric <-  read_excel(path.expand(here("index","data", "pw_P_photometric.xlsx")))
-
-
-#Statistics of duplicates.
-stat_IC <- IC_raw_data[duplicated(IC_raw_data$sample)|duplicated(IC_raw_data$sample, fromLast=TRUE),] %>%
-  group_by(sample) %>% 
-  summarize(P = mean(Phosphate),
-            "SO" = mean(Sulphate), 
-            NO = mean(Nitrate), 
-            "Br" = mean(Bromide), 
-            "Fl" = mean(Fluoride), 
-            "Cl" = mean(Chloride),
-            DP = abs(diff(Phosphate)),
-            "DSO" = abs(diff(Sulphate)), 
-            DNO = abs(diff(Nitrate)), 
-            "DBr" = abs(diff(Bromide)), 
-            "DFl" = abs(diff(Fluoride)), 
-            "DCl" = abs(diff(Chloride))) 
-hist_IC <-  stat_IC %>% select("DP":"DCl") %>% melt() %>% ggplot( aes(x = value)) + geom_histogram() + facet_grid(~variable)
-
-for (i in 8:13) {
-  d = mean(pull(stat_IC[i]))
-  print(d)
-  
-}
-
-# Transform the raw data to middle duplicates.
-ICplotdata  <- IC_raw_data %>% 
-  filter(str_detect(sample,"pw|sw")) %>% 
-  group_by(sample) %>% 
-  mutate(P = (mean(Phosphate)*1000)/94.9714, "SO" = mean(Sulphate)*1000/96.06, NO = mean(Nitrate)*1000/62.004, "Br" = mean(Bromide)*1000/79.9, "Fl" = mean(Fluoride)*1000/19, "Cl" = mean(Chloride)*1000/35.45 ) %>%
-  distinct(sample, .keep_all = TRUE) %>% 
-  mutate(treated =
-      case_when(
-        str_detect(sample,"A|C")  ~ "treated",
-        str_detect(sample,"B|D")  ~ "nontreated"),
-      Incubation = 
-        case_when(
-        str_detect(sample, "1\\.") ~ "before",
-        str_detect(sample, "3\\.")  ~ "after",
-        T ~ "blank" )) %>% left_join(
-  pw_photometric,
-  by = c("sample" = "Sample"),
-  copy = FALSE,
-  suffix = c(".IC", ".photometric"),
-  keep = FALSE
-) %>%  group_by(location) %>% arrange(cm_below_swi) 
-
-# reshape data.
-molten_IC_core_data <- ICplotdata %>% select("location", "sample", "cm_below_swi", "SO" : "Incubation") %>% 
-melt(id.vars = c("location", "sample", "cm_below_swi", "treated", "Incubation"), 
-     measured_.vars = c(  
-                         "SO", 
-                         "NO",
-                         "Br",
-                         "Fl", 
-                         "Cl"), na.rm = TRUE)
-
-nest_IC_pw_depth <- molten_IC_core_data %>% group_by(variable) %>% nest()
-
-# plot profiles by parameter
-
-Lables = as_labeller( c( "P"  = "PO[4]^'3-'",                      
-   "SO" = "SO[4]^'2-'", 
-   "NO" = "NO[3]^'-'",
-   "Br" = "Br^'-'",
-   "Fl" = "F^'-'", 
-   "Cl" = "Cl^'-'"), default =  label_parsed )
-
-IC_profile_plots <- ggplot(molten_IC_core_data, mapping = aes(
-                        x = value,
-                        y = cm_below_swi ,
-                        color = location,
-                        shape = location)
-         ) +
-       
-       scale_color_manual( values=c("A" = "red", "B" = "blue", "C" = "red", "D" = "blue")) +
-       scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
-      scale_y_reverse() +
-       geom_point() + 
-       geom_path() +
-       facet_grid(Incubation ~ variable, scales = "free_x", labeller = Lables) +
-       labs(  x = expression(paste("concentration in ",mu,"mol/L")), 
-              y = "Depth in cm",
-              title = "pw profiles measured with IC") +
-      theme_classic() +
-      theme(aspect.ratio = 2. ,
-            axis.text.y   = element_text(size=14),
-            axis.text.x   = element_text(size=14),
-            axis.title.y  = element_text(size=14),
-            axis.title.x  = element_text(size=14),
-            strip.text.y   = element_text(size=14),
-            strip.text.x   = element_text(size=14),
-            panel.background = element_blank(),
-            panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank(),
-            axis.line = element_line(colour = "black"),
-            panel.border = element_rect(colour = "black", fill=NA, size=1)
-            )
-
-ggsave(paste("IC_profiles.png",sep=""), plot =IC_profile_plots, path = path.expand(here("index","figures")),
-
-       width =30, height = 18,units = "cm",dpi = 600)
-
-```
 
 
 
@@ -249,7 +137,7 @@ ggsave(paste("IC_incubations_",i,".png",sep=""), plot =graph, path = path.expand
 
 # slope of NH4 line
 
-initinc <- inc_data %>% filter(time < 10 ) %>% mutate(NH4mol = 0.001*NH4*`volume_(ml)` ) %>% view
+initinc <- inc_data %>% filter(time > 15 ) %>% mutate(NH4mol = 0.001*NH4*`volume_ml` ) %>% view
 initplot <- ggplot( initinc,
        mapping = aes(x = time , 
                      y = NH4mol, 
@@ -640,6 +528,24 @@ eq <- function(x,y) {
 
 
 eqdepth <- Seq_extr_dr %>% filter(depth <= 10 & depth > 0)
+
+loc  <-  list("A","B","C","D")
+frac <- list("Fe_MgCl_A", "PyroP", "Fe_HCl_col", "Fe_CDB", "Fe_HNO")
+tab <- matrix(nrow = 5, ncol = 5)
+for (i in 1:4) {
+for (j in 1:5) {
+  
+
+t = t.test(
+  pull(eqdepth[eqdepth$Incubation == "before" & eqdepth$Location == loc[[i]],], frac[[j]]),
+pull(eqdepth[eqdepth$Incubation == "after" & eqdepth$Location == loc[[i]],], frac[[j]]),
+paired = TRUE)$p.value
+
+tab[j,i] <- t
+}
+}
+view(tab)
+
 
 pyr_bp = ggplot(eqdepth,
         mapping = aes(y = Fe_HNO,
