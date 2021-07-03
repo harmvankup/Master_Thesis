@@ -95,9 +95,7 @@ molten_IC_core_data <- ICplotdata %>% select("location", "sample", "cm_below_swi
 
 # plot profiles by parameter
 
-
-
-
+# lable functions
 Lables = as_labeller( c( "P_phot"  = "PO[4]^'3-'",                      
                          "SO" = "SO[4]^'2-'", 
                          "NO" = "NO[3]^'-'",
@@ -111,11 +109,11 @@ Lables = as_labeller( c( "P_phot"  = "PO[4]^'3-'",
                          "before" = "'Before'\\1\n'incubation'",
                          "after" = "'After'\\1\n'incubation'"), default =  label_parsed )
 
-labels = c("Fe[tot]","PO[4]^'3-'","SH^'-'","NH[4]^'+'","SO[4]^'2-'","NO[3]^'-'")
-
+# scale of the y axis 
 max<-max(na.omit(molten_IC_core_data$cm_below_swi))
 limitsx <- ceiling(max+2)
 
+# create plot
 IC_profile_plots <- 
   ggplot(  transform(molten_IC_core_data, 
                      Incubation = factor(Incubation, 
