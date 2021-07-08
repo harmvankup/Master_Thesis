@@ -1,3 +1,53 @@
 # Discussion
 
+## Influence of Fe addition on benthic fluxes
 
+*The incubation experiment shows that benthic P flux from untreated sediments is substantial, even under oxic conditions
+
+*Iron treatment has reduced P fluxes by an order of magnitude.
+
+* Under anoxic conditions, P release is preceded by a increase in dissolved iron, this suggests the P did not come from the same source as the Fe.
+
+*The decrease in HCl pool after incubating suggest reductive iron dissolution, which causes the rise Fe concentration in the overlying water
+
+*While the P load in non treated cores can be explained by convective diffusion from the porewater, the low prewater P concentration in the treated cores implies a reactive source of P in the treated incubations. 
+
+* Since the P to iron ratio in the overlying water is higher than in the most reactive Fe pools in the top layer of the sediment, the P increase is more likely a result of organic decomposition rather than co-release with iron.
+
+
+
+
+## Changes in Fe pools
+
+* The original sediment are poor in iron, and most of it is immobilized by pyrite formation
+
+* Iron content in the HCl and CBD pools are stable below 10 cm in the untreated cores, and the high P/Fe ratio in these pools indicate OM-Fe-P complexes and co-precipitated iron and phosphate.
+
+* In contrast to the stable deeper pools, the top layer of sediment is characterized by larger reactive pools, which decrease after anoxic incubation. This redox sensitivity suggest iron oxides are part of the pools.
+
+* The presence of Fe oxide phases suggests relatively oxic conditions in the top 10 cm.
+
+* Under anoxic conditions, iron reduction dissolves the reactive iron oxides in the HCL pool. Meanwhile, sulphate reduction produces sulphide which binds the Fe2+. This is shown by the increase in the HNO pool in the non treated cores. 
+
+
+
+## P binding capacity of iron phases
+* P can be bound to solid Fe phases by adsorbtion to Fe oxides, OM-Fe-P complexation or  by coprecipitation as part of the crystal lattice.
+
+* Kleeberg (2013) poses that P release under anoxic condition does not contribute to P loading when release of Fe2+ is sufficiently high, which is the case in the treated incubations.
+
+* Assuming the Fe pools in the untreated sediment are saturated with P, the P/Fe ratio of ~0.3 for oxides will approximate the P binding capacity.
+
+* With  ~0.05 P/Fe, the ironoxides in the treated sediments can theoretically adsorb 0.25 mole of phosphate per mole of  iron. However not all iron will be available as part of the Fe2+ binds to sulphide to form ironsulphide.
+
+* P seems to accumulate in the iron pools in the top sediment, in the long term, when the Fe is saturated with P, this could increase P loading.
+
+
+
+## Other effects of Fe addition
+
+* Under anoxic conditions, sulphate reduction becomes the primary oxidative force, as is seen in the rise in sulphide and decline in sulphate.
+
+* Fe treatment has not influenced the sulphate reduction. However, sulphide levels remain low as the sulphide precipitates together with iron. Since sulphide is immobilized in this way, it cannot be recycled and oxidized, and accumulates in the iron layer.
+
+* In addition to sulphate, Fe3+ becomes an electron acceptor as well when added to the sediment. The higher fluxes of ammonium and nitrate in the treated cores suggest a higher rate of mineralisation as a result. 
