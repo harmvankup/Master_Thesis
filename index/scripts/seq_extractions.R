@@ -205,7 +205,9 @@ Seq_extr_dr <-Seq_extr_trans %>%
                               T ~ 0),
          PFe_HCl = mean(P_HCl_calc)/mean(Fetot_HCl_calc),
          PFe_CDB = mean(P_CDB_calc)/mean(Fe_CDB_calc),
-         PFe_HNO = mean(P_HNO_calc)/mean(Fe_HNO_calc)) %>% 
+         PFe_HNO = mean(P_HNO_calc)/mean(Fe_HNO_calc),
+         FeP_HCl = mean(Fetot_HCl_calc)/mean(P_HCl_calc),
+         FeP_CDB = mean(Fe_CDB_calc)/mean(P_CDB_calc)) %>% 
   distinct(Station, .keep_all = TRUE) %>% 
   ungroup %>% 
   left_join(pw_data, 
@@ -228,8 +230,16 @@ seq_extr_A_P_molten <- Seq_extr_dr %>%
   select("depth","Location","Incubation", "FeII", "FeIII", P_MgCl, P_HCl, P_CDB, P_HNO) %>% 
   melt(id.vars = c("depth","Location","Incubation", "FeII", "FeIII"), variable.name = "Fraction" , na.rm = TRUE) 
 
+seq_extr_untreated_Fe_molten <- Seq_extr_dr %>% filter(Location == "B" | Location == "D") %>% 
+  select("depth","Location","Incubation", "FeII", "FeIII", Fe_MgCl, Fe_pyroP, Fe_HClminPP, Fe_CDB, Fe_HNO) %>% 
+  melt(id.vars = c("depth","Location","Incubation", "FeII", "FeIII"), variable.name = "Fraction" , na.rm = TRUE) 
+
 seq_extr_PFe_molten <- Seq_extr_dr %>% 
   select("depth","Location","Incubation",  PFe_HCl, PFe_CDB, PFe_HNO) %>% 
+  melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
+
+seq_extr_FeP_molten <- Seq_extr_dr %>% 
+  select("depth","Location","Incubation",  FeP_HCl, FeP_CDB) %>% 
   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
 
 ######====== Create figures from data ======######
@@ -239,7 +249,8 @@ seq_extr_PFe_molten <- Seq_extr_dr %>%
 # create sequential extraction figures
 list_sq_extr_plots <-  list(seq_extr_A_Fe_molten, 
                             seq_extr_B_Fe_molten, 
-                            seq_extr_A_P_molten)
+                            seq_extr_A_P_molten,
+                            seq_extr_untreated_Fe_molten)
 
 legend_levels <- list(c("Fe_MgCl_umol", "Fe_pyroP_umol",  "Fe_HClminPP_umol", "Fe_CDB_umol", "Fe_HNO_umol"),
                       c("Fe_MgCl", "Fe_pyroP", "Fe_HClminPP", "Fe_CDB", "Fe_HNO"),
@@ -257,15 +268,22 @@ legend_labels <- list(c("MgCl; loosly adsorbed Fe",
                       c("MgCl; loosly adsorbed Fe",
                         "HCl; Reactive Fe minerals",
                         "CBD; Crystalline Fe oxides",
-                        "HNO[3]; Pyrite"))
+                        "HNO[3]; Pyrite"),
+                      c("MgCl;\n loosly adsorbed Fe",
+                        "Pyrophosphate;\n organic bound Fe",
+                        "HCl;\n Reactive Fe minerals",
+                        "CBD;\n Crystalline Fe oxides",
+                        "HNO[3];\n Pyrite"))
 
 colors <- list(c("orange","coral4", "darkorange2","darkgoldenrod1","goldenrod"),
                c("orange","coral4", "darkorange2","darkgoldenrod1","goldenrod"),
-               c("chartreuse", "darkolivegreen3", "greenyellow", "olivedrab1"))
+               c("chartreuse", "darkolivegreen3", "palegreen2", "olivedrab1"),
+               c("orange","coral4", "darkorange2","darkgoldenrod1","goldenrod"))
 
 axtitles <-list(expression(paste("Extracted Fe (",mu,"mol",")")),
                 expression(paste("Extracted Fe (",mu,"mol gDW"^-1,")")),
-                expression(paste("Extracted P (",mu,"mol gDW"^-1,")")))
+                expression(paste("Extracted P (",mu,"mol gDW"^-1,")")),
+                expression(paste("Extracted Fe (",mu,"mol gDW"^-1,")")))
 
 
 for (i in 1:length(list_sq_extr_plots)) {
@@ -312,7 +330,7 @@ for (i in 1:length(list_sq_extr_plots)) {
           legend.key.size = unit(1.3, "cm")) +
     facet_grid(Location ~ Incubation)
   
-  ggsave(paste("seq_extr_Fe_",i,".png",sep=""), plot =j, path = path.expand(here("index","figures")),
+  ggsave(paste("seq_extr_Fe_",i,".eps",sep=""), plot =j, path = path.expand(here("index","figures")),
          
          width =27, height = 40,units = "cm",dpi = 600)
   
@@ -326,7 +344,11 @@ Lables = as_labeller( c(  "PFe_MgCl" = "MgCl",
                           "PFe_HNO" = "HNO[3]",
                           "after" = "After",
                           "before" = "Before") , default =  label_parsed )
-PFe_profile_plots <- ggplot(transform(seq_extr_PFe_molten, 
+ratioplots <- list(seq_extr_PFe_molten, seq_extr_FeP_molten)
+p <- list()
+for (i in 1:2) {
+  
+p[[i]] <-  ggplot(transform(ratioplots[[i]], 
                                       Incubation = factor(Incubation, levels = c("before","after"))), 
                             mapping = aes(
   x = value,
@@ -359,10 +381,13 @@ PFe_profile_plots <- ggplot(transform(seq_extr_PFe_molten,
     axis.line = element_line(colour = "black"),
     panel.border = element_rect(colour = "black", fill=NA, size=1)
   )
-
+}
+ 
+ PFe_profile_plots <- p[[1]]
+ show(p[[2]])
 show(PFe_profile_plots)
 
-ggsave("seq_extr_PFe.png", plot = PFe_profile_plots, path = path.expand(here("index","figures")),
+ggsave("seq_extr_PFe.eps", plot = PFe_profile_plots, path = path.expand(here("index","figures")),
        
        width =25, height = 25,units = "cm",dpi = 600)
 

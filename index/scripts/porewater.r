@@ -153,5 +153,5 @@ IC_profile_plots <-
                      legend.title = element_text(size = 25),
                      legend.text = element_text(size = 21))
 
-ggsave(paste("profiles.png",sep=""), plot =IC_profile_plots, path = path.expand(here("index","figures")),
+ggsave(paste("profiles.eps",sep=""), plot =IC_profile_plots, path = path.expand(here("index","figures")),
        width =40, height = 25,units = "cm",dpi = 600)

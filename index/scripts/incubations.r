@@ -52,19 +52,14 @@ inc_data <-
 
 # calculate benthic fluxes
 flux_data <- inc_data %>% 
-  group_by(Core.photometric) %>%  
-  summarise(
-    treated = treated,
-    Location = Location,
-    oxic_state = oxic_state,
-    time = time, 
-    dP = c(0, diff((0.001*Preal*volume_ml)/(pi*9))/diff(time)),
-    dFe = c(0, diff((0.001*FeTot*volume_ml)/(pi*9))/diff(time)),
-    dNH = c(0, diff((0.001*NH4*volume_ml)/(pi*9))/diff(time)),
-    dSH = c(0, diff((0.001*H2SuM*volume_ml)/(pi*9))/diff(time)),
-    dNO = c(0, diff((0.001*NO*volume_ml)/(pi*9))/diff(time)),
-    dSO = c(0, diff((0.001*SO*volume_ml)/(pi*9))/diff(time))
-  ) %>% ungroup()
+  mutate(
+    dP = (0.001*Preal*volume_ml)/(pi*9),
+    dFe = (0.001*FeTot*volume_ml)/(pi*9),
+    dNH =  (0.001*NH4*volume_ml)/(pi*9),
+    dSH = (0.001*H2SuM*volume_ml)/(pi*9),
+    dNO = (0.001*NO*volume_ml)/(pi*9),
+    dSO = (0.001*SO*volume_ml)/(pi*9)
+  ) 
 
 # reshape the data by melting all variables, and grouping them by parameter.
 
@@ -88,7 +83,18 @@ molten_inc <- inc_data %>% select("Core.photometric",
                            "SO",
                            "NO"), na.rm = TRUE)
 
-molten_flux <-  melt(flux_data, id.vars = c("Core.photometric","time","oxic_state","treated","Location"))
+molten_flux <- flux_data %>% select("Core.photometric", 
+                                    "time", 
+                                    "dSH", 
+                                    "dFe", 
+                                    "dP", 
+                                    "dNH", 
+                                    "dSO",
+                                    "dNO",
+                                    "oxic_state", 
+                                    "treated", 
+                                    "Location") %>%  
+  melt( id.vars = c("Core.photometric","time","oxic_state","treated","Location"))
 
 ####== create plots for all parameters ==####
 
@@ -109,11 +115,12 @@ Lables = as_labeller( c(  "HS" = "HS^'-'",
                           "anoxic" = "'Anoxic incubations'"), default =  label_parsed )
 
 d <- list(molten_inc, molten_flux)
+l <- list(c("FeTot","Preal","HS","NH4","SO","NO"), c("dFe",  "dP", "dSH",  "dNH", "dSO", "dNO")) 
 for (i in 1:2) {
   
   graph <- 
     ggplot(transform(d[[i]],
-                     variable = factor(variable, levels = c("FeTot","Preal","HS","NH4","SO","NO"))), 
+                     variable = factor(variable, levels = l[[i]])), 
            mapping = aes(x = time , 
                          y = value, 
                          color = Location, 
@@ -136,7 +143,7 @@ for (i in 1:2) {
           legend.text = element_text(size = 21)) + 
     facet_grid(variable ~ oxic_state, scales = "free_y",switch = "y", labeller = Lables) + labs(title = "Benthic flux experiment", x= "time (days)", y = expression(paste("concentration in ",mu,"mol/L")))
   
-  ggsave(paste("IC_incubations_",i,".png",sep=""), plot =graph, path = path.expand(here("index","figures")),
+  ggsave(paste("IC_incubations_",i,".eps",sep=""), plot =graph, path = path.expand(here("index","figures")),
          
          width =30, height = 27,units = "cm",dpi = 600)
 }
@@ -145,43 +152,57 @@ for (i in 1:2) {
 
 # slope of NH4 line
 
-initinc <- inc_data %>% filter(time > 15 ) %>% mutate(NH4mol = 0.001*NH4*`volume_ml` ) 
-initplot <- ggplot( initinc,
-                    mapping = aes(x = time , 
-                                  y = NH4mol, 
-                                  color = treated, 
-                                  shape = Location, 
-                                  by = Core.photometric)
-) + 
-  scale_color_manual( values=c("treated" = "red", "nontreated" = "blue")) +
-  scale_shape_manual( values=c("A" = 16, "B" = 1, "C" = 17,  "D" = 2)) +
-  geom_point() + 
-  geom_line() + 
-  stat_smooth(method = "lm") +
-  facet_grid(~ oxic_state)
+inc_flux <- inc_data %>% mutate(NH4mol = (0.001*NH4*`volume_ml`)/(pi*0.09),
+                                                      Pmol = (0.001*Preal*`volume_ml`)/(pi*0.09),
+                                                      Femol = (0.001*FeTot*`volume_ml`)/(pi*0.09),
+                                                      HSmol = (0.001*HS*`volume_ml`)/(pi*0.09),
+                                                      NOmol = (0.001*NO*`volume_ml`)/(pi*0.09),
+                                                      SOmol = (0.001*SO*`volume_ml`)/(pi*0.09)) 
+fluxmin <- c(0,0,7)
+fluxmax <- c(10, 25,60)
+fluxan <- list(c("NH4", "Fe"), c("P"),c("HS","NH4","SO","Fe") )
+fluxox <- list(c("NH4"), c("P"), c("SO","NO") )
+fluxslopes <- tibble(row.names = c("A","A","B","B","C","C","D","D"))
+for (i in 1:3) {
+  d <- inc_flux[inc_flux$time < fluxmax[[i]] & inc_flux$time > fluxmin[[i]] ,] %>%  
+    group_by(Core.photometric) %>% 
+    summarize(NH4 = coef(lm(NH4mol ~ time))[2],
+              P   = coef(lm(Pmol ~ time))[2],
+              Fe = coef(lm(Femol ~ time))[2],
+              HS = coef(lm(HSmol ~ time))[2],
+              NO = coef(lm(NOmol ~ time))[2],
+              SO = coef(lm(SOmol ~ time))[2]
+    )
+ 
+  an <- filter(d, str_detect(Core.photometric,"3\\.")) %>% select(fluxan[[i]]) 
+  colnames(an) <- paste0(fluxan[[i]], c(rep(fluxmax[[i]], length(fluxan[[i]]))), c(rep("An",length(fluxan[[i]]))))
+  ox <- filter(d, str_detect(Core.photometric,"2\\.")) %>% select(fluxox[[i]])   
+  colnames(ox) <- paste0(fluxox[[i]], c(rep(fluxmax[[i]], length(fluxox[[i]]))), c(rep("Ox",length(fluxox[[i]]))))
+  
+  fluxslopes  <- bind_cols(fluxslopes, an, ox)
+  
+  
+}
 
+fluxslopes <- relocate(fluxslopes, row.names, Fe10An, Fe60An, P25An, NH410An, NH460An, HS60An, SO60An, P25Ox, NH410Ox, SO60Ox, NO60Ox)
 
-initslopes <- initinc %>%  group_by(Core.photometric) %>% 
-  summarize(NH4slope = coef(lm(NH4mol ~ time))[2]
-  ) %>% filter(str_detect(Core.photometric,"3\\.")) %>%  add_column(
-    O2slope = c(-0.172133,
-                -0.404987,
-                -0.360635,
-                -0.0793467,
-                -0.370374,
-                -0.174982,
-                -0.227892,
-                -0.167105
-    )) %>% mutate(C_est = NH4slope*6.6, O2_umol_day = -1000*(O2slope*24)/31.9988, C_mg_day = -30*(O2slope*24)/31.9988) 
+#view(fluxslopes)
 
+print(xtable(fluxslopes, type = "latex"), file = "slopes.tex")
 
-initreg <- ggplot(initslopes, 
-                  mapping = aes( 
-                    y=NH4slope, 
-                    x=O2_umol_day),
-                  scale_x_discrete(position = 'top')) +
-  geom_point(
-    stat = "identity", position = position_stack(reverse=TRUE),color="black") 
+O2slope = c(-0.172133,
+            -0.404987,
+            -0.360635,
+            -0.0793467,
+            -0.370374,
+            -0.174982,
+            -0.227892,
+            -0.167105
+)
+
+ O2_umol_day = -1000*(O2slope*24)/31.9988 
+ C_mg_day = -30*(O2slope*24)/31.9988
+
 
 ####== P to Fe ratio calculations ==####
 
