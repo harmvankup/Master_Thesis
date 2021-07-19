@@ -65,9 +65,58 @@ t.test(c(EC_A, EC_B),c(EC_C, EC_D))
   + Figures can be referenced with `\@ref(fig:<name>)`, where `<name>` is the
     name of the code chunk.
 
-```{r graph, echo=FALSE, fig.cap="Estimated residuals from model XXX. ...", out.width = "50%"}
-knitr::include_graphics(here("index","figures","graph.eps"))
+```{r incubations, echo=FALSE, fig.cap="Concentration of nutrients in overlying water of incubated cores over time.", out.width = "100%"}
+knitr::include_graphics(here("index","figures","IC_incubations_1.eps"))
 ```
+ 
+ 
+```{r pwprofiles, echo=FALSE, fig.cap="Depth profile of nutrient concenntration in porewater of cores. Cores sliced before the incubation experiment are compared with the top 20cm of sediment after two months incubating under anoxic conditions.", out.width = "100%"}
+knitr::include_graphics(here("index","figures","profiles.eps"))
+```
+
+```{r Feseq, echo=FALSE, fig.cap="Iron content of sequential extraction pools as function of depth.", out.width= "90%"}
+knitr::include_graphics(here("index","figures","seq_extr_Fe_2.eps"))
+```
+
+```{r Pseq, echo=FALSE, fig.cap="Total phosphorous found in every pool of the sequential extraction, as function of depth.", out.width = "90%"}
+knitr::include_graphics(here("index","figures","seq_extr_Fe_3.eps"))
+```
+
+```{r PFe, echo=FALSE, fig.cap="The ratio between phosphorous and iron in selected extracion pools. A ratio close to 1 suggests every Fe ion can bind one phosphate.", out.width = "100%"}
+knitr::include_graphics(here("index","figures","seq_extr_PFe.eps"))
+```
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rl|rrrrrrr||rrrr|}
+  \toprule
+  & \multicolumn{12}{l}{Benthic fluxes in $\mu$mol m$^{-2}$ day$^{-1}$} \\
+  \hline
+  & & \multicolumn{7}{c}{Anoxic incubations} & \multicolumn{4}{c}{Oxic incubations} \\
+ & row.names &  \multicolumn{2}{c}{Fe$_{tot}$} & PO$_4^{3-}$ & \multicolumn{2}{c}{NH$_{4}^+$} & HS$^-$ & SO$_4^{2-}$ & 
+ PO$_4^{3-}$ & NH$_{4}^+$ & SO$_4^{2-}$ & NO$_3^-$ \\ 
+ &  & \textbf{I} & \textbf{III} & \textbf{II} & \textbf{I} & \textbf{III} & \textbf{III} & \textbf{III} & \textbf{II} & \textbf{I} & \textbf{III} & \textbf{III} \\
+  \hline
+& A & 10.91 & 2.23 & 1.08 & 14.83 & 2.95 & 0.02 & -11.99 & 0.25 & 13.45 & -1.94 & 2.92 \\ 
+&  & 1.21 & 1.24 & 0.80 & 1.45 & 2.74 & -0.03 & -11.12 & 0.21 & 8.10 & 1.46 & 1.79 \\ \hline
+& B & 0.77 & -0.09 & 2.32 & 13.30 & 1.80 & 4.22 & -5.50 & 0.70 & 2.30 & 2.80 & 1.15 \\ 
+&  & 0.09 & -0.14 & 3.31 & 9.63 & 1.94 & 11.45 & -12.33 & 2.40 & 10.75 & 3.82 & 1.72 \\ \hline
+& C & 28.99 & 1.36 & 1.00 & 9.45 & 2.50 & 0.16 & -14.22 & 0.15 & 2.70 & 2.28 & 0.35 \\ 
+&  & 28.81 & -0.03 & 1.52 & 19.99 & 2.91 & 0.18 & -7.13 & 0.28 & 1.81 & 11.65 & 2.89 \\ \hline
+& D & 1.97 & -0.28 & 3.94 & 24.52 & 0.23 & 13.23 & -15.77 & 3.13 & 13.98 & 10.98 & 4.57 \\ 
+&  & 1.54 & -0.26 & 9.52 & 33.14 & -0.95 & 17.23 & -4.66 & 2.21 & 9.56 & 0.37 & 1.56 \\ 
+   \hline
+   \multicolumn{13}{l}{\footnotesize{\textbf{I}: First 10 days}} \\
+   \multicolumn{13}{l}{\footnotesize{\textbf{II}: First 25 days}} \\
+   \multicolumn{13}{l}{\footnotesize{\textbf{III}: After a week}} \\
+   \bottomrule
+\end{tabular}
+\caption{Calculated benthic fluxes for selected species during incubation. Linear regressions were estimated for certain time intervals (listed with roman numbers), and the slopes are listed. }
+    \label{tab:flux}
+\end{table}
+
+
   + Tables and graphics may appear in the text or in the appendix, especially if
   there are many simulation results tabulated, but is also depends on the study
   and number of tables resp. figures. The key graphs and tables must appear in
@@ -115,22 +164,9 @@ row_spec(2, hline_after = T)
 
 * The appearance may look different to tables directly typed with LaTex, due to
   limitations in `kable()`. To compare:
-    \begin{table}[ht]
+    
 
-    \begin{center}
-        {\footnotesize
-        \begin{tabular}{l|cccccccccc}
-            \hline \hline
-                      & 3m    & 6m    & 1yr   & 2yr   & 3yr   & 5yr   & 7yr   & 10yr  & 12yr  & 15yr   \\
-            \hline
-                Mean   & 3.138 & 3.191 & 3.307 & 3.544 & 3.756 & 4.093 & 4.354 & 4.621 & 4.741 & 4.878  \\
-                StD    & 0.915 & 0.919 & 0.935 & 0.910 & 0.876 & 0.825 & 0.803 & 0.776 & 0.768 & 0.762  \\
-            \hline \hline
-        \end{tabular}}
-    \end{center}
-    \caption{This table was handwritten with LaTeX.}
-    \label{tab:table2}
-    \end{table}
+
 
 * R Markdown can also supports math equations just like _LaTeX_!
 
