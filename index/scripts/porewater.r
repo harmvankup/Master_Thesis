@@ -89,10 +89,15 @@ Parameters <-  c(
   "Br",
   "Fl", 
   "Cl")
-molten_IC_core_data <- ICplotdata %>% select("location", "sample", "cm_below_swi", "SO" , "NO", "treated", "Incubation", "P_phot":"NH","SH") %>% 
+molten_IC_core_data <- ICplotdata %>% 
+  select("location", "sample", "cm_below_swi", "SO" , "NO", "treated", "Incubation", "P_phot":"NH","SH") %>% 
+  melt(id.vars = c("location", "sample", "cm_below_swi", "treated", "Incubation"), 
+       na.rm = TRUE) %>% 
+  transform(variable =   factor(variable,  levels = c("Fetot","P_phot","SH","NH","SO","NO")))
+
+molten_Fe_data <- ICplotdata %>% mutate(FeIII = Fetot-FeII) %>%  select("location", "sample", "cm_below_swi", "treated", "Incubation","FeII", "FeIII", "Fetot") %>% 
   melt(id.vars = c("location", "sample", "cm_below_swi", "treated", "Incubation"), 
        na.rm = TRUE) 
-
 # plot profiles by parameter
 
 # lable functions
@@ -103,7 +108,8 @@ Lables = as_labeller( c( "P_phot"  = "PO[4]^'3-'",
                          "Fl" = "F^'-'", 
                          "Cl" = "Cl^'-'",
                          "Fetot" = "Fe[tot]",
-                         "FeII" = "Fe^'2-'",
+                         "FeII" = "Fe^'2+'",
+                         "FeIII" = "Fe^'3+'",
                          "NH" = "NH[4]^'+'",
                          "SH" = "SH^'-'",
                          "before" = "'Before'\\1\n'incubation'",
@@ -114,15 +120,17 @@ max<-max(na.omit(molten_IC_core_data$cm_below_swi))
 limitsx <- ceiling(max+2)
 
 # create plot
-IC_profile_plots <- 
-  ggplot(  transform(molten_IC_core_data, 
+
+pw <- list(molten_IC_core_data, molten_Fe_data)
+scaling <- list("free_x", "fixed")
+pwplots <- list()
+for (i in 1:length(pw)) {
+  
+ 
+pwplots[[i]] <-  ggplot(  transform(pw[[i]], 
                      Incubation = factor(Incubation, 
                                          levels = c("before","after"), 
-                                         labels = c("Before incubation","After incubation")),
-                     variable =   factor(variable, 
-                                       levels = c("Fetot","P_phot","SH","NH","SO","NO") 
-                                       )
-                     ), 
+                                         labels = c("Before incubation","After incubation"))), 
            mapping = aes(
                           y = value,
                           x = cm_below_swi ,
@@ -139,7 +147,7 @@ IC_profile_plots <-
   xlab("Depth (cm)") +
   scale_x_reverse(breaks=seq(0,limitsx[1],by=2), labels=seq(0,limitsx[1],by=2), limits=c(limitsx[1],0))+
   coord_flip() +
-  facet_grid(Incubation ~ variable, scales = "free_x", labeller = labeller(.rows = label_wrap_gen(width = 10), .cols = Lables )) +
+  facet_grid(Incubation ~ variable, scales = scaling[[i]], labeller = labeller(.rows = label_wrap_gen(width = 10), .cols = Lables )) +
   labs(  y = expression(paste("concentration in ",mu,"mol/L")), 
          x = "Depth in cm",
          title = "porewater profiles" ) +
@@ -152,6 +160,14 @@ IC_profile_plots <-
                      panel.grid.minor = element_blank(),
                      legend.title = element_text(size = 25),
                      legend.text = element_text(size = 21))
+}
+
+show(pwplots[[2]])
+IC_profile_plots <- pwplots[[1]]
+Fe_plots <- pwplots[[2]]
 
 ggsave(paste("profiles.eps",sep=""), plot =IC_profile_plots, path = path.expand(here("index","figures")),
+       width =40, height = 25,units = "cm",dpi = 600)
+
+ggsave(paste("Feprofiles.png",sep=""), plot =Fe_plots, path = path.expand(here("index","figures")),
        width =40, height = 25,units = "cm",dpi = 600)

@@ -3,7 +3,7 @@ library(here)
 library(tidyverse)
 library(ggplot2)
 library(reshape2)
-
+library(xtable)
 # import raw data
 
 
@@ -53,12 +53,12 @@ inc_data <-
 # calculate benthic fluxes
 flux_data <- inc_data %>% 
   mutate(
-    dP = (0.001*Preal*volume_ml)/(pi*9),
-    dFe = (0.001*FeTot*volume_ml)/(pi*9),
-    dNH =  (0.001*NH4*volume_ml)/(pi*9),
-    dSH = (0.001*H2SuM*volume_ml)/(pi*9),
-    dNO = (0.001*NO*volume_ml)/(pi*9),
-    dSO = (0.001*SO*volume_ml)/(pi*9)
+    dP = (0.001*Preal*volume_ml)/(pi*0.0009),
+    dFe = (0.001*FeTot*volume_ml)/(pi*0.0009),
+    dNH =  (0.001*NH4*volume_ml)/(pi*0.0009),
+    dSH = (0.001*H2SuM*volume_ml)/(pi*0.0009),
+    dNO = (0.001*NO*volume_ml)/(pi*0.0009),
+    dSO = (0.001*SO*volume_ml)/(pi*0.0009)
   ) 
 
 # reshape the data by melting all variables, and grouping them by parameter.
@@ -152,12 +152,12 @@ for (i in 1:2) {
 
 # slope of NH4 line
 
-inc_flux <- inc_data %>% mutate(NH4mol = (0.001*NH4*`volume_ml`)/(pi*0.09),
-                                                      Pmol = (0.001*Preal*`volume_ml`)/(pi*0.09),
-                                                      Femol = (0.001*FeTot*`volume_ml`)/(pi*0.09),
-                                                      HSmol = (0.001*HS*`volume_ml`)/(pi*0.09),
-                                                      NOmol = (0.001*NO*`volume_ml`)/(pi*0.09),
-                                                      SOmol = (0.001*SO*`volume_ml`)/(pi*0.09)) 
+inc_flux <- inc_data %>% mutate(NH4mol = (0.000001*NH4*`volume_ml`)/(pi*0.0009),
+                                                      Pmol = (0.000001*Preal*`volume_ml`)/(pi*0.0009),
+                                                      Femol = (0.000001*FeTot*`volume_ml`)/(pi*0.0009),
+                                                      HSmol = (0.000001*HS*`volume_ml`)/(pi*0.0009),
+                                                      NOmol = (0.000001*NO*`volume_ml`)/(pi*0.0009),
+                                                      SOmol = (0.000001*SO*`volume_ml`)/(pi*0.0009)) 
 fluxmin <- c(0,0,7)
 fluxmax <- c(10, 25,60)
 fluxan <- list(c("NH4", "Fe"), c("P"),c("HS","NH4","SO","Fe") )
