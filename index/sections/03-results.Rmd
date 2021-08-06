@@ -22,21 +22,8 @@ t.test(EC_C, EC_D)
 t.test(c(EC_A, EC_B),c(EC_C, EC_D))
 ```
 
-* The surface water at the treated and non treated locations was similar in composition and oxic conditions at time of sampling.
+The \textit{in situ} surface water measurements showed that both at the treated and non treated locations oxic conditions of 9.5-10.5 mg/L dissolved oxygen, and pH levels around 8. While no significant difference between treated and non-treated locations, water conditions did vary between the locations closer (C and D) and further away (A and B) from the water inlet. This variation was seen in a  significantly higher electric conductivity at locations A and B (438 $\mu$S and 451$\mu$S), than measured at locations C and D (395$\mu$S and 397$\mu$S), which correlated with sulfate concentrations. In addition, the decrease in sulfate concentration with depth in the porewater was steeper in locations C and D compared to A and B.( \@ref(pwprofiles))
 
-* locations A and B had a significantly higher electric conductivity (438 $\mu$S and 451$\mu$S), than locations C and D (395$\mu$S and 397$\mu$S)
-
-* This can be explained by a higher sulphate concentration, which remains relatively high in the A and B locations deeper in the sediment.
-
-* Porewater profiles show high dissolved iron at 1 - 10 cm depth in treated cores. Non treated porewater contains very little iron.
-
-* Phosphate concentration in porewater anticorrelates with the dissolved iron, the non treated cores have more phosphate in their porewater.
-
-* An increase in ammonium is seen in the first 10 days in all cores. The non treated cores also show an increase in phosphate. 
-
-* Under anoxic conditions, iron concentrations increase in the treated cores, followed by an increase in phosphate.
-
-* After the initial increase, concentrations of NH4, Fe and P stabilize. The oxic cores show a decrease in P and NH4 levels, and an increase in nitrate concentration. In the anoxic incubations, this is followed by an increase in sulphide in the non treated cores, but not in the treated locations.
 
 * The sequential extraction data shows that iron is much more abundant in the treated cores than in the non treated. 
 
@@ -49,6 +36,31 @@ t.test(c(EC_A, EC_B),c(EC_C, EC_D))
 * With the exception of pyrite, all phases have decreased significantly in the top 10 cm after anoxic incubation. Pyrite increased slightly in the non treated cores, but not in the treated ones. (table)
 
 * The layer where iron abundancy is maximal has migrated upwards after anoxic incubating. This holds also for the depth where P/Fe ratio of treated converges with the reference.
+
+
+```{r Feseq, echo=FALSE, fig.cap="Iron content of sequential extraction pools as function of depth.", out.width= "90%"}
+knitr::include_graphics(here("index","figures","seq_extr_Fe_2.eps"))
+```
+
+```{r Pseq, echo=FALSE, fig.cap="Total phosphorous found in every pool of the sequential extraction, as function of depth.", out.width = "90%"}
+knitr::include_graphics(here("index","figures","seq_extr_Fe_3.eps"))
+```
+
+ 
+```{r pwprofiles, echo=FALSE, fig.cap="Depth profile of nutrient concentration in porewater. Treated locations are shown in red, reference locations in blue. Top row shows cores sliced directly after sampling, the bottom row after two months incubating under anoxic conditions. Iron, phosphate, slufide and ammonia were measured with photospectometry, sulfate and nitrate with IC.", out.width = "100%"}
+knitr::include_graphics(here("index","figures","profiles.eps"))
+```
+
+
+Dissolved iron is highest at 1 - 10 cm depth in treated cores, and decreases with depth. In contrast, porewater of the non-treated cores contain very little iron. The non treated cores have high concentrations of phosphate in their porewater at every depth, with a peak in concentration close to the surface and an increase with after ~10 cm. Phosphate concentrations in the porewater, however, are low (~1-10 $\mu$M) where the dissolved iron concentration is high, and increase only with depth after 10 cm. 
+
+* An increase in ammonium is seen in the first 10 days in all cores. The non treated cores also show an increase in phosphate. 
+
+* Under anoxic conditions, iron concentrations increase in the treated cores, followed by an increase in phosphate.
+
+* After the initial increase, concentrations of NH4, Fe and P stabilize. The oxic cores show a decrease in P and NH4 levels, and an increase in nitrate concentration. In the anoxic incubations, this is followed by an increase in sulphide in the non treated cores, but not in the treated locations.
+
+
 
 
 
@@ -69,18 +81,6 @@ t.test(c(EC_A, EC_B),c(EC_C, EC_D))
 knitr::include_graphics(here("index","figures","IC_incubations_1.eps"))
 ```
  
- 
-```{r pwprofiles, echo=FALSE, fig.cap="Depth profile of nutrient concenntration in porewater of cores. Cores sliced before the incubation experiment are compared with the top 20cm of sediment after two months incubating under anoxic conditions.", out.width = "100%"}
-knitr::include_graphics(here("index","figures","profiles.eps"))
-```
-
-```{r Feseq, echo=FALSE, fig.cap="Iron content of sequential extraction pools as function of depth.", out.width= "90%"}
-knitr::include_graphics(here("index","figures","seq_extr_Fe_2.eps"))
-```
-
-```{r Pseq, echo=FALSE, fig.cap="Total phosphorous found in every pool of the sequential extraction, as function of depth.", out.width = "90%"}
-knitr::include_graphics(here("index","figures","seq_extr_Fe_3.eps"))
-```
 
 ```{r PFe, echo=FALSE, fig.cap="The ratio between phosphorous and iron in selected extracion pools. A ratio close to 1 suggests every Fe ion can bind one phosphate.", out.width = "100%"}
 knitr::include_graphics(here("index","figures","seq_extr_PFe.eps"))
@@ -150,8 +150,7 @@ kable_styling(latex_options = c("HOLD_position")) %>%
 row_spec(2, hline_after = T)
 ```
 
-* Allows the reader to judge whether the sample is biased or to evaluate 
-  possible impacts of outliers, for example.
+
 
 * Here tables can be easily integrated using the `kable()` function in the
   `knitr` package (with perhaps some additional help from the `kableExtra`
@@ -166,9 +165,6 @@ row_spec(2, hline_after = T)
   limitations in `kable()`. To compare:
     
 
-
-
-* R Markdown can also supports math equations just like _LaTeX_!
 
   + _Equation \@ref(eq:SpecDens) represents the ACs of a stationary
     stochastic process:_
@@ -185,14 +181,4 @@ row_spec(2, hline_after = T)
   + Equations can be referenced with `\@ref(eq:<name>)`, where name is defined
     by adding `(\#eq:<name>)` in the line immediately before `\end{equation}`.
 
-## Review of Results
 
-*  Do the results support or do they contradict theory ?
-
-*  What does the reader learn from the results?
-
-*  Try to give an intuition for your results.
-
-*  Provide robustness checks.
-
-*  Compare to previous research.
