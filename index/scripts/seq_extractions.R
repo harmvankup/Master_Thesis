@@ -74,6 +74,10 @@ Seq_extr_trans <-  Seq_extr_data %>%
       str_detect(Station,"-C")  ~ "C",
       str_detect(Station,"-D")  ~ "D",
       T ~ "blank"),
+    Treated = case_when(
+      str_detect(Station,"A") | str_detect(Station,"-C")  ~ "treated",
+      str_detect(Station,"-B") | str_detect(Station,"-D")   ~ "untreated",
+      T ~ "blank"),
     Incubation = case_when(
       str_detect(Station, "1\\.") ~ "before",
       str_detect(Station, "3\\.")  ~ "after",
@@ -166,7 +170,7 @@ Seq_extr_trans <-  Seq_extr_data %>%
 
 # Total destruction data
 
-TD_data <- TD_data %>% mutate(Fe_tot = Fe_tot_ppm/mw_Fe)
+TD_data <- TD_data %>% mutate(Fe_tot = Fe_tot_ppm/mw_Fe, P_tot = P_tot_ppm/mw_P)
 
 ####-------------- transform data into data to be plotted -----------####
 
@@ -192,7 +196,7 @@ mol <- function(x,y){mean(x) * mean(y) }
 #pw_data <- filter(ICplotdata, str_detect(sample, "pw")) %>% mutate(Station = str_replace(sample, "pw-" , ""),
 #                                                                  FeIII = Fetot-FeII) 
 
-TD_mean <- TD_data %>% group_by(Station) %>% mutate(tot_Fe = mean(Fe_tot)) %>% distinct(Station, .keep_all = TRUE) %>% ungroup()
+TD_mean <- TD_data %>% group_by(Station) %>% mutate(tot_Fe = mean(Fe_tot), tot_P = mean(P_tot)) %>% distinct(Station, .keep_all = TRUE) %>% ungroup()
 
 Seq_extr_dr <-Seq_extr_trans %>% 
   filter(Incubation != "blank") %>% 
@@ -231,20 +235,20 @@ Seq_extr_dr <-Seq_extr_trans %>%
 
 # create molten dataframes for figures 
 seq_extr_A_Fe_molten <- Seq_extr_dr %>%  
-  select("depth","Location","Incubation",  Fe_MgCl_umol, Fe_pyroP_umol,  Fe_HClminPP_umol, Fe_CDB_umol, Fe_HNO_umol) %>% 
-  melt(id.vars = c("depth","Location","Incubation" ), variable.name = "Fraction" , na.rm = TRUE) 
+  select("depth","Location","Incubation", "Treated",  Fe_MgCl_umol, Fe_pyroP_umol,  Fe_HClminPP_umol, Fe_CDB_umol, Fe_HNO_umol) %>% 
+  melt(id.vars = c("depth","Location","Incubation", "Treated" ), variable.name = "Fraction" , na.rm = TRUE) 
 
 seq_extr_B_Fe_molten <- Seq_extr_dr %>% 
-  select("depth","Location","Incubation", "tot_Fe",  Fe_MgCl, Fe_pyroP, Fe_HClminPP, Fe_CDB, Fe_HNO) %>% 
-  melt(id.vars = c("depth","Location","Incubation", "tot_Fe"), variable.name = "Fraction" , na.rm = TRUE) 
+  select("depth","Location","Incubation", "Treated", "tot_Fe",  Fe_MgCl, Fe_pyroP, Fe_HClminPP, Fe_CDB, Fe_HNO) %>% 
+  melt(id.vars = c("depth","Location","Incubation", "Treated", "tot_Fe"), variable.name = "Fraction" , na.rm = TRUE) 
 
 seq_extr_A_P_molten <- Seq_extr_dr %>% 
-  select("depth","Location","Incubation",  P_MgCl, P_HCl, P_CDB, P_HNO) %>% 
-  melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
+  select("depth","Location","Incubation", "Treated", "tot_P",  P_MgCl, P_HCl, P_CDB, P_HNO) %>% 
+  melt(id.vars = c("depth","Location","Incubation","Treated", "tot_P"), variable.name = "Fraction" , na.rm = TRUE) 
 
 seq_extr_untreated_Fe_molten <- Seq_extr_dr %>% filter(Location == "B" | Location == "D") %>% 
-  select("depth","Location","Incubation", "tot_Fe",  Fe_MgCl, Fe_pyroP, Fe_HClminPP, Fe_CDB, Fe_HNO) %>% 
-  melt(id.vars = c("depth","Location","Incubation", "tot_Fe"), variable.name = "Fraction" , na.rm = TRUE) 
+  select("depth","Location","Incubation", "Treated", "tot_Fe",  Fe_MgCl, Fe_pyroP, Fe_HClminPP, Fe_CDB, Fe_HNO) %>% 
+  melt(id.vars = c("depth","Location","Incubation", "Treated", "tot_Fe"), variable.name = "Fraction" , na.rm = TRUE) 
 
 seq_extr_PFe_molten <- Seq_extr_dr %>% 
   select("depth","Location","Incubation",  PFe_HCl, PFe_CDB, PFe_HNO) %>% 
@@ -276,21 +280,21 @@ legend_labels <- list(c("MgCl; loosly adsorbed Fe",
                         "Pyrophosphate; organic bound Fe",
                         "HCl; Reactive Fe minerals",
                         "CBD; Crystalline Fe oxides",
-                        "HNO[3]; Pyrite"),
+                        "HNO3; Pyrite"),
+                      c("MgCl",
+                        "Pyrophosphate",
+                        "HCl",
+                        "CBD",
+                        "HNO3"),
+                      c("MgCl",
+                        "HCl",
+                        "CBD",
+                        "HNO3"),
                       c("MgCl;\n loosly adsorbed Fe",
                         "Pyrophosphate;\n organic bound Fe",
                         "HCl;\n Reactive Fe minerals",
                         "CBD;\n Crystalline Fe oxides",
-                        "HNO[3];\n Pyrite"),
-                      c("MgCl; loosly adsorbed Fe",
-                        "HCl; Reactive Fe minerals",
-                        "CBD; Crystalline Fe oxides",
-                        "HNO[3]; Pyrite"),
-                      c("MgCl;\n loosly adsorbed Fe",
-                        "Pyrophosphate;\n organic bound Fe",
-                        "HCl;\n Reactive Fe minerals",
-                        "CBD;\n Crystalline Fe oxides",
-                        "HNO[3];\n Pyrite"))
+                        "HNO3;\n Pyrite"))
 
 colors <- list(c("orange","coral4", "darkorange2","darkgoldenrod1","goldenrod"),
                c("orange","coral4", "darkorange2","darkgoldenrod1","goldenrod"),
@@ -323,7 +327,7 @@ for (i in 1:length(list_sq_extr_plots)) {
     geom_line(
       aes(),
       stat = "identity", position = position_stack(reverse=TRUE),color="black")+
-    scale_fill_manual(values = colors[[i]], labels = legend_labels[[i]], name = "Extractant; Target pool") +
+    scale_fill_manual(values = colors[[i]], labels = legend_labels[[i]], name = "Extractant pool") +
     #geom_line( mapping = 
     #  aes(x = depth, y = TD[[i]]), color = "black", size = 1.5) +
     coord_flip()+
@@ -335,20 +339,20 @@ for (i in 1:length(list_sq_extr_plots)) {
     theme_bw()+
     #scale_fill_brewer(palette = "Reds",direction = -1)+
     theme(
-          axis.title=element_text(size=20),plot.title = element_text(hjust = 0.5),
-          axis.text=element_text(size=16,angle = 0, hjust = 0.5),
+          axis.title=element_text(size=25),plot.title = element_text(hjust = 0.5),
+          axis.text=element_text(size=14,angle = 0, hjust = 0.5),
           #panel.grid.major = element_blank(), 
           panel.grid.minor = element_blank(),
-          strip.text.y   = element_text(size=16, angle = 0),
-          strip.text.x   = element_text(size=17, angle = 0),
-          legend.title = element_text( size = 20),
-          legend.text = element_text(size = 15),
-          legend.key.size = unit(1.3, "cm")) +
-    facet_grid(Location ~ Incubation)
+          strip.text.y   = element_text(size=25, angle = 0),
+          strip.text.x   = element_text(size=25, angle = 0),
+          legend.title = element_text( size = 22),
+          legend.text = element_text(size = 18),
+          legend.key.size = unit(1.2, "cm")) +
+    facet_grid(Location ~ Incubation )
   
   ggsave(paste("seq_extr_Fe_",i,".eps",sep=""), plot =j, path = path.expand(here("index","figures")),
          
-         width =27, height = 40,units = "cm",dpi = 600)
+         width =28, height = 47,units = "cm",dpi = 600)
   
 }
 
@@ -370,7 +374,7 @@ TD_plot <- ggplot(transform( list_sq_extr_plots[[2]],
   geom_line(
     aes(),
     stat = "identity", position = position_stack(reverse=TRUE),color="black")+
-  scale_fill_manual(values = colors[[2]], labels = legend_labels[[2]], name = "Extractant; Target pool") +
+  scale_fill_manual(values = colors[[2]], labels = legend_labels[[2]], name = "Extractant") +
   geom_line( mapping = 
     aes(x = depth, y = tot_Fe), color = "black", size = 1.5) +
   coord_flip()+
@@ -393,6 +397,51 @@ TD_plot <- ggplot(transform( list_sq_extr_plots[[2]],
   facet_grid(Location ~ Incubation)
 
 ggsave("seq_extr_Fe_TD.jpg", plot =TD_plot, path = path.expand(here("index","figures")),
+       
+       width =27, height = 40,units = "cm",dpi = 600)
+
+# phosphate
+
+TDP_plot <- ggplot(transform( list_sq_extr_plots[[3]], 
+                             Incubation = factor(Incubation, 
+                                                 levels = c("before","after"), 
+                                                 labels = c("Before incubation","After incubation"))), 
+                  aes(fill=Fraction, 
+                      y=value, 
+                      x=depth),
+                  scale_x_discrete(position = 'top'))+
+  geom_area(
+    aes(fill = Fraction),
+    stat = "identity", position = position_stack(reverse=TRUE))+
+  geom_point(
+    aes(),
+    stat = "identity", position = position_stack(reverse=TRUE),color="black")+
+  geom_line(
+    aes(),
+    stat = "identity", position = position_stack(reverse=TRUE),color="black")+
+  scale_fill_manual(values = colors[[3]], labels = legend_labels[[3]], name = "Extractant") +
+  geom_line( mapping = 
+               aes(x = depth, y = tot_P), color = "black", size = 1.5) +
+  coord_flip()+
+  scale_x_reverse() + 
+  scale_y_continuous(breaks=NULL,labels=waiver(),name=NULL, sec.axis = sec_axis(~ . *1,name=axtitles[[3]]))+
+  labs(y = axtitles[[3]],
+       x = "Depth (cm)"
+  ) +
+  theme_bw()+
+  theme(
+    axis.title=element_text(size=20),plot.title = element_text(hjust = 0.5),
+    axis.text=element_text(size=16,angle = 0, hjust = 0.5),
+    #panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    strip.text.y   = element_text(size=16, angle = 0),
+    strip.text.x   = element_text(size=17, angle = 0),
+    legend.title = element_text( size = 20),
+    legend.text = element_text(size = 15),
+    legend.key.size = unit(1.3, "cm")) +
+  facet_grid(Location ~ Incubation)
+
+ggsave("seq_extr_P_TD.jpg", plot =TDP_plot, path = path.expand(here("index","figures")),
        
        width =27, height = 40,units = "cm",dpi = 600)
 
@@ -447,7 +496,7 @@ p[[i]] <-  ggplot(transform(ratioplots[[i]],
 }
  
  PFe_profile_plots <- p[[1]]
- show(p[[2]])
+# show(p[[3]])
 # show(PFe_profile_plots)
 
 ggsave("seq_extr_PFe.eps", plot = PFe_profile_plots, path = path.expand(here("index","figures")),
@@ -571,7 +620,7 @@ eqdepth <- Seq_extr_dr %>% filter(depth <= 10 & depth > 0)
 eqdepth %>% group_by(Core) %>% summarise(HClCDB1 = mean(HCl_CDB), 
                                          HClCDB2 = (sum(Fe_HCl_umol)/sum(Fe_CDB_umol)),
                                          pyroPCDB = (sum(Fe_pyroP_umol)/sum(Fe_CDB_umol)),
-                                         totFE = (sum(tot_Fe*tot_weight)*mw_Fe*0.000001)/(pi*0.0009)) %>% print
+                                         totFE = (sum(tot_Fe*tot_weight)*mw_Fe*0.000001)/(pi*0.0009)) 
 
 loc  <-  c("A","B","C","D")
 frac <- c("Fe_MgCl_umol", "Fe_pyroP_umol", "Fe_HCl_umol", "Fe_CDB_umol", "Fe_HNO_umol", "HCl_CDB","pyroP_CDB")
@@ -590,37 +639,41 @@ for (i in 1:4) {
 }
 colnames(tab) <- frac
 rownames(tab) <- loc
-view(tab)
+#view(tab)
 
-pyr_bp = ggplot(eqdepth,
+pyr_bp <-  ggplot(eqdepth,
                 mapping = aes(y = Fe_HNO,
-                              x = Core)) + geom_boxplot()
-crys_bp = ggplot(eqdepth,
+                              x = Core)) + geom_boxplot() 
+crys_bp <-  ggplot(eqdepth,
                  mapping = aes(y = Fe_CDB,
                                x = Core)) + geom_boxplot()
-HCl_bp = ggplot(eqdepth,
+HCl_bp <-  ggplot(eqdepth,
                 mapping = aes(y = Fe_HCl_col,
                               x = Core)) + geom_boxplot()
-org_bp = ggplot(eqdepth,
+org_bp <-  ggplot(eqdepth,
                 mapping = aes(y = PyroP,
                               x = Core)) + geom_boxplot()
-salt_bp = ggplot(eqdepth,
+salt_bp <-  ggplot(eqdepth,
                  mapping = aes(y = Fe_MgCl_A,
                                x = Core)) + geom_boxplot()
 
 
-eqdepth %>% group_by(Core) %>% summarise(Location = first(Location), Incubation = first(Incubation), Pyrite = mean(Fe_HNO), sumPyrite = sum(Fe_HNO))
+ggsave("Pyr_boxplot.png", plot = pyr_bp, path = path.expand(here("index","figures")),
+       
+       width =25, height = 25,units = "cm",dpi = 600)
+
+#eqdepth %>% group_by(Core) %>% summarise(Location = first(Location), Incubation = first(Incubation), Pyrite = mean(Fe_HNO), sumPyrite = sum(Fe_HNO))
 
 
 
 # test colorimetric Fe data against ICP data
-instrument_seq_extr_Fe <- ggplot(Seq_extr_dr, 
-                      mapping = aes( 
-                        y=Fe_HCl_ICP, 
-                        x=Fe_HCl_col),
-                      scale_x_discrete(position = 'top')) +
-  geom_point(
-    stat = "identity", position = position_stack(reverse=TRUE),color="black") +
-  stat_smooth(method = "lm")+
-  geom_text(x = 25, y = 300, label = eq(Seq_extr_dr$Fe_HCl_col, Seq_extr_dr$Fe_HCl_ICP), parse = TRUE)
-show(instrument_seq_extr_Fe)
+# instrument_seq_extr_Fe <- ggplot(Seq_extr_dr, 
+#                       mapping = aes( 
+#                         y=Fe_HCl_ICP, 
+#                         x=Fe_HCl_col),
+#                       scale_x_discrete(position = 'top')) +
+#   geom_point(
+#     stat = "identity", position = position_stack(reverse=TRUE),color="black") +
+#   stat_smooth(method = "lm")+
+#   geom_text(x = 25, y = 300, label = eq(Seq_extr_dr$Fe_HCl_col, Seq_extr_dr$Fe_HCl_ICP), parse = TRUE)
+# show(instrument_seq_extr_Fe)

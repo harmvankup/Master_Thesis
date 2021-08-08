@@ -93,11 +93,22 @@ molten_IC_core_data <- ICplotdata %>%
   select("location", "sample", "cm_below_swi", "SO" , "NO", "treated", "Incubation", "P_phot":"NH","SH") %>% 
   melt(id.vars = c("location", "sample", "cm_below_swi", "treated", "Incubation"), 
        na.rm = TRUE) %>% 
-  transform(variable =   factor(variable,  levels = c("Fetot","P_phot","SH","NH","SO","NO")))
+  transform(variable =   factor(variable,  levels = c("Fetot","P_phot","SH","NH","SO","NO")), 
+            Incubation = factor(Incubation, levels = c("before","after"), 
+                                            labels = c("Before incubation","After incubation")))
 
 molten_Fe_data <- ICplotdata %>% mutate(FeIII = Fetot-FeII) %>%  select("location", "sample", "cm_below_swi", "treated", "Incubation","FeII", "FeIII", "Fetot") %>% 
   melt(id.vars = c("location", "sample", "cm_below_swi", "treated", "Incubation"), 
-       na.rm = TRUE) 
+       na.rm = TRUE) %>%  transform( 
+                               Incubation = factor(Incubation, 
+                                                   levels = c("before","after"), 
+                                                   labels = c("Before incubation","After incubation")))
+
+molten_presentation_data <- ICplotdata %>% filter(Incubation == "before") %>% 
+  select("location", "sample", "cm_below_swi", "treated", "Incubation", "P_phot","Fetot","SH") %>% 
+  melt(id.vars = c("location", "sample", "cm_below_swi", "treated", "Incubation"), 
+       na.rm = TRUE) %>% 
+  transform(variable =   factor(variable,  levels = c("Fetot","P_phot","SH")))
 # plot profiles by parameter
 
 # lable functions
@@ -121,16 +132,13 @@ limitsx <- ceiling(max+2)
 
 # create plot
 
-pw <- list(molten_IC_core_data, molten_Fe_data)
-scaling <- list("free_x", "fixed")
+pw <- list(molten_IC_core_data, molten_Fe_data,molten_presentation_data)
+scaling <- list("free_x", "fixed","free_x")
 pwplots <- list()
 for (i in 1:length(pw)) {
   
  
-pwplots[[i]] <-  ggplot(  transform(pw[[i]], 
-                     Incubation = factor(Incubation, 
-                                         levels = c("before","after"), 
-                                         labels = c("Before incubation","After incubation"))), 
+pwplots[[i]] <-  ggplot(  pw[[i]], 
            mapping = aes(
                           y = value,
                           x = cm_below_swi ,
@@ -159,15 +167,19 @@ pwplots[[i]] <-  ggplot(  transform(pw[[i]],
                      # panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(),
                      legend.title = element_text(size = 25),
-                     legend.text = element_text(size = 21))
+                     legend.text = element_text(size = 21),
+                     legend.key.size = unit(1.8, "cm"))
 }
 
-show(pwplots[[2]])
+#show(pwplots[[2]])
 IC_profile_plots <- pwplots[[1]]
 Fe_plots <- pwplots[[2]]
+presentation_plots <- pwplots[[3]]
 
 ggsave(paste("profiles.eps",sep=""), plot =IC_profile_plots, path = path.expand(here("index","figures")),
        width =40, height = 25,units = "cm",dpi = 600)
 
 ggsave(paste("Feprofiles.png",sep=""), plot =Fe_plots, path = path.expand(here("index","figures")),
        width =40, height = 25,units = "cm",dpi = 600)
+ggsave(paste("presentationprofiles.png",sep=""), plot =presentation_plots, path = path.expand(here("index","figures")),
+       width =35, height = 25,units = "cm",dpi = 600)

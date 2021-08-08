@@ -158,6 +158,18 @@ inc_flux <- inc_data %>% mutate(NH4mol = (0.000001*NH4*`volume_ml`)/(pi*0.0009),
                                                       HSmol = (0.000001*HS*`volume_ml`)/(pi*0.0009),
                                                       NOmol = (0.000001*NO*`volume_ml`)/(pi*0.0009),
                                                       SOmol = (0.000001*SO*`volume_ml`)/(pi*0.0009)) 
+O2slope = c(-0.172133,
+            -0.404987,
+            -0.360635,
+            -0.0793467,
+            -0.370374,
+            -0.174982,
+            -0.227892,
+            -0.167105
+)
+
+O2_umol_day = as_tibble_col((O2slope*24)/(31.9988*pi*0.0009), column_name = "O2")
+
 fluxmin <- c(0,0,7)
 fluxmax <- c(10, 25,60)
 fluxan <- list(c("NH4", "Fe"), c("P"),c("HS","NH4","SO","Fe") )
@@ -179,28 +191,18 @@ for (i in 1:3) {
   ox <- filter(d, str_detect(Core.photometric,"2\\.")) %>% select(fluxox[[i]])   
   colnames(ox) <- paste0(fluxox[[i]], c(rep(fluxmax[[i]], length(fluxox[[i]]))), c(rep("Ox",length(fluxox[[i]]))))
   
-  fluxslopes  <- bind_cols(fluxslopes, an, ox)
+  fluxslopes  <- bind_cols(fluxslopes, O2_umol_day, an, ox)
   
   
 }
 
-fluxslopes <- relocate(fluxslopes, row.names, Fe10An, Fe60An, P25An, NH410An, NH460An, HS60An, SO60An, P25Ox, NH410Ox, SO60Ox, NO60Ox)
+fluxslopes <- relocate(fluxslopes, row.names, O2, Fe10An, Fe60An, P25An, NH410An, NH460An, HS60An, SO60An, P25Ox, NH410Ox, SO60Ox, NO60Ox)
 
 #view(fluxslopes)
 
 print(xtable(fluxslopes, type = "latex"), file = "slopes.tex")
 
-O2slope = c(-0.172133,
-            -0.404987,
-            -0.360635,
-            -0.0793467,
-            -0.370374,
-            -0.174982,
-            -0.227892,
-            -0.167105
-)
 
- O2_umol_day = -1000*(O2slope*24)/31.9988 
  C_mg_day = -30*(O2slope*24)/31.9988
 
 

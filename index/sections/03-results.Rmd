@@ -22,27 +22,24 @@ t.test(EC_C, EC_D)
 t.test(c(EC_A, EC_B),c(EC_C, EC_D))
 ```
 
-The \textit{in situ} surface water measurements showed that both at the treated and non treated locations oxic conditions of 9.5-10.5 mg/L dissolved oxygen, and pH levels around 8. While no significant difference between treated and non-treated locations, water conditions did vary between the locations closer (C and D) and further away (A and B) from the water inlet. This variation was seen in a  significantly higher electric conductivity at locations A and B (438 $\mu$S and 451$\mu$S), than measured at locations C and D (395$\mu$S and 397$\mu$S), which correlated with sulfate concentrations. In addition, the decrease in sulfate concentration with depth in the porewater was steeper in locations C and D compared to A and B.( \@ref(pwprofiles))
+The \textit{in situ} surface water measurements showed that both at the treated and non treated locations oxic conditions of 9.5-10.5 mg/L dissolved oxygen, and pH levels around 8. While no significant difference between treated and non-treated locations, water conditions did vary between the locations closer (C and D) and further away (A and B) from the water inlet. This variation was seen in a  significantly higher electric conductivity at locations A and B (438 $\mu$S and 451$\mu$S), than measured at locations C and D (395$\mu$S and 397$\mu$S), which correlated with sulfate concentrations. In addition, the decrease in sulfate concentration with depth in the porewater was steeper in locations C and D compared to A and B.( \@ref(fig:pwprofiles))
 
+Differences in iron content are immediately clear when comparing the sequential extraction data, which shows that iron is much more abundant in the treated cores than in the non-treated.( \@ref(fig:seq)) The largest pool extracted in the treated sediment is the HCl extractable pool, while the orginal sediment contains predominantly iron extracted HNO$_3$. The small amount of other Fe extracted in the non-treated cores is restricted to the top few centimeter. Interestingly, the HNO$_3$ extracted Fe after treatment is lower than in the original sediment.
 
-* The sequential extraction data shows that iron is much more abundant in the treated cores than in the non treated. 
+Phosphate abundancy in the extracted pools correlates well with total iron. While HCl extracted Fe is only a small fraction in the non-treated cores, the extracted P is largest in this pool. The treated sediment extracted more P with HCl at the maxima of iron, but was not that much higher compared to P in the untreated sediment.
 
-* The largest fraction in the treated cores is HCl, which targets carbonates and reactive iron oxides. In the non treated cores the HCl fraction is much less and is constrained to the top few cm.
-
-* Pyrite is the most abundand iron phase in the reference cores, and are distributed uniformely over depth. The treated cores contain less pyrite in the top 10 cm.
-
-* The abundance of phosphate correlates with iron. The P/Fe ratio stays constant over depth, though it changes at circa 15 cm depth, and is dependant on treatment and phase. (table)
+After anoxic incubation, 
 
 * With the exception of pyrite, all phases have decreased significantly in the top 10 cm after anoxic incubation. Pyrite increased slightly in the non treated cores, but not in the treated ones. (table)
 
 * The layer where iron abundancy is maximal has migrated upwards after anoxic incubating. This holds also for the depth where P/Fe ratio of treated converges with the reference.
 
 
-```{r Feseq, echo=FALSE, fig.cap="Iron content of sequential extraction pools as function of depth.", out.width= "90%"}
-knitr::include_graphics(here("index","figures","seq_extr_Fe_2.eps"))
+```{r seq, echo=FALSE, fig.cap="Iron content of sequential extraction pools as function of depth.", out.width= "50%"}
+knitr::include_graphics(c(here("index","figures","seq_extr_Fe_2.eps"), here("index","figures","seq_extr_Fe_3.eps")))
 ```
 
-```{r Pseq, echo=FALSE, fig.cap="Total phosphorous found in every pool of the sequential extraction, as function of depth.", out.width = "90%"}
+```{r Pseq, echo=FALSE, fig.cap="Total phosphorous found in every pool of the sequential extraction, as function of depth.", out.width = "20%"}
 knitr::include_graphics(here("index","figures","seq_extr_Fe_3.eps"))
 ```
 
