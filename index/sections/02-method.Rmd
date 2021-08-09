@@ -2,33 +2,39 @@
 
 ## Study site
 
-Sediment cores and surface water were gathered at Bovenlanden, a peat meadow in South-Holland, the Netherlands. The area functioned as farmland in the past, and is heavily influenced by fertilization. Nowdays, Bovenlanden is managed by Natuurmonumenten, in a conservation effort to restore biodiversity in the western peat meadow system of the Netherlands. The goal is to restore types of grassland common before industrialization of farming, which have typically more diverse vegetation and form a habitat for breeding meadow birds. To establish a nutrient poor wet meadow, an effort was needed to improve water quiality. To reduce external nutrient load, most ditches in the southern part have been detached from the surrounding surface water, keeping only one inlet via a weir, and runoff from land was reduced by removing the top layer of soil containing most of the nutrients. In 2019, 60 tons of iron sludge was added to the southern two ditches to counter internal phosphate loading. Water quality improved on visual inspection after a few months after the treatment.
+Sediment cores and surface water were gathered at Bovenlanden, a peat meadow in South-Holland, the Netherlands. (Fig. \@ref(fig:BL)) The area functioned as farmland in the past, and is heavily influenced by fertilization. Nowdays, Bovenlanden is managed by Natuurmonumenten, in a conservation effort to restore biodiversity in the western peat meadow system of the Netherlands. The goal is to restore types of grassland common before industrialization of farming, which have typically more diverse vegetation and form a habitat for breeding meadow birds. To establish a nutrient poor wet meadow, an effort was needed to improve water quality. To reduce external nutrient load, most ditches in the southern part have been detached from the surrounding surface water, keeping only one inlet via a weir, and runoff from land was reduced by removing the top layer of soil containing most of the nutrients. In 2020, 60 tons of iron sludge was added to the southern two ditches to mitigate internal P loading. Water quality improved on visual inspection after a few months after the treatment.
+
+
+```{r BL, echo=FALSE, fig.cap="Overview of the study site. On the left  the general location within the Netherlands is shown. In the bottom right is indicated where Bovenlanden is located within the Western peat area. On the right a satelite image of Bovenlanden with important features highlighted. Two ditches in the area have been treated with iron sludge in the past. Note the only water inlet is located in the north, far away from the treated ditches", out.width = "100%"}
+knitr::include_graphics(here("index","figures","BovenlandenOverview.png"))
+```
+
 
 ## Core sampling
 
-The site was visited the 23rd of February 2021 to collect sediment cores. Two locations on the same treated ditch were chosen based on distance from the inlet weir, each treated location was paired with a reference location in a non-treated ditch nearby.  For each of the four locations 7 cores were collected  using a UWITEC corer with a diameter of 6 cm. Sediment depth in the cores was approxiamtely 40 cm, with 20cm overlying water. Extra surface water was collected for refilling during incubation sampling. Temperature, PH, dissolved oxygen, and electrical conductivity were measured using probes. Surface water samples where collected and filtered on site using 0.45$\mu$m pore size syringe filters.
+The site was visited the 23rd of February 2021 to collect sediment cores. Two locations on the same treated ditch were chosen based on distance from the inlet weir, each treated location was paired with a reference location in a non-treated ditch nearby. (Fig. \@ref(fig:sampleloc)) For each of the four locations 7 cores were collected  using a UWITEC corer with a diameter of 6 cm. Sediment depth in the cores was approximately 40 cm, with 20cm overlying water. Extra surface water was collected for refilling during incubation sampling. Temperature, PH, dissolved oxygen, and electrical conductivity were measured using probes. Surface water samples where collected and filtered on site using 0.45$\mu$m pore size syringe filters.
 
-## Incubation setup
+```{r sampleloc, echo=FALSE, fig.cap="Four location within the Bovenlanden system where samples have been taken. On the northern of the two treated ditches, two locations on opposide sides were chosen: A and C. To differentiate from the non-treated locations, they are displayed in red. Two nearby locations in untreated ditches, B and D, are displayed in blue. The two sides of the ditch were chosen to investigate the possible influence of surface water influx, as locations B and D are closer to the water inlet in the north of the system. ", out.width = "100%"}
+knitr::include_graphics(here("index","figures","BovenlandenSampleLocations.png"))
+```
 
-To monitor benthic fluxes under oxic and anoxic conditions, sediment cores where incubated at 10&deg;C for 60 days. For each location two cores were allowed to turn anoxic, and two where kept oxic by aerated the overlying water. To induce anoxic conditions, the cores were closed with an airtight cap with a stirrer and filled completely with surface water. The decay in oxygen was monitored with an oxygen probe. Change in concentration of the overlying water was monitored by taking 20 mL from 1-3 cm above the sediment-water interface using a syringe and rubber tube, and filtered through a 0.45$\mu$m syringe filter directly into subsamples. The water was replenished using surface water collected at the locations, in the anoxic cores this was done simultaneously when taking samples, to prevent air entering the core. Samples where taken from the overlying water on daily basis the first two weeks, and 2-3 times a week for the remaining experiment.
 
-Before the incubation experiment, one core for each location was sliced for porewater and sediment analysis. In addition, one of the anoxic cores of each location was sliced after incubation. Slicing was performed under low oxygen conditions in intervals of 1cm for the top 10cm, and 2cm intervals at greater depth. Sediment slices were collected in 50mL centrifuge tubes and centrifuged at 3000rpm for 10min to seperate porewater. In a glovebox with nitrogen atmosphere, the porewater was decanted into a syringe with a 0.45$\mu$m filter and filtered into subsamples. The sediment was freezedried, and homogenized with an agate mortal and pestle under nitrogen atmosphere.
-
+Directly after the field campaign, one core from each location was sliced for porewater and sediment analysis. Slicing was performed under low oxygen conditions in intervals of 1cm for the top 10cm, and 2cm intervals at greater depth. Sediment slices were collected in 50mL centrifuge tubes and centrifuged at 3000rpm for 10min to seperate porewater. In a glovebox with nitrogen atmosphere, the porewater was decanted into a syringe with a 0.45$\mu$m filter and filtered into subsamples. The sediment was freezedried, and homogenized with an agate mortal and pestle under nitrogen atmosphere. Wet samples were stored cool (5&deg;C) in airtight containers, dry sediment was kept under nitrogen atmosphere.
 
 ## Sequential extractions of Fe pools
-Analysis of the iron pools in the solid phase was done with a sequential extraction method based on Claff et al..  The method was modified to include phosphate measurements of the extracted pools by omitting the pyrophosphate extraction in the main sequential extraction.  Parallel to the main extraction a two-step extraction of MgCl and pyrophosphate was performed to target the organic bound iron. 
+Analysis of the iron pools in the solid phase was done with a sequential extraction method based on @claffSequentialExtractionProcedure2010.  The method was modified to include phosphate measurements of the extracted pools by omitting the pyrophosphate extraction in the main sequential extraction.  Parallel to the main extraction a two-step extraction of MgCl and pyrophosphate was performed to target the organic bound iron. (Table \@ref(tab:seqextr))
 
-Approximately 100mg of dry sediment was weighed into a 15mL centrifuge tube. For each extraction step, 10 mL of extraction solution was added with a dispenser under a continue nitrogen flow. After addition, the mixture was weighed, resuspended and shaken for a specified time. After extraction, the suspension was centrifuged for 10min at 3000rpm, and the supernatant decanted into a syringe with 0.45$\mu$m filter and the next extraction solution was added immediately. The extractant was filtered and diluted 10 times before analysis with ICP-OES. The last extraction step, using concentrated nitric acid was not filtered but diluted 100 times.
+Approximately 100mg of dry sediment was weighed into a 15mL centrifuge tube. For each extraction step, 10 mL of extraction solution was added with a dispenser under a continue nitrogen flow. After addition, the mixture was weighed, resuspended and shaken for a specified time. After extraction, the suspension was centrifuged for 10min at 3000rpm, and the supernatant decanted into a syringe with 0.45$\mu$m filter and the next extraction solution was added immediately. The extractant was filtered and diluted 10 times before analysis. The last extraction step, which uses concentrated nitric acid, was not filtered but diluted 100 times.
 
 \begin{table}[ht]
  \centering
      {\footnotesize
-        \begin{tabular}{m{0.1\textwidth} m{0.09\textwidth} | m{0.1\textwidth} m{0.3\textwidth} m{0.1\textwidth} m{0.2\textwidth}}
+        \begin{tabular}{m{0.1\textwidth} m{0.07\textwidth} | m{0.1\textwidth} m{0.3\textwidth} m{0.1\textwidth} m{0.2\textwidth}}
             \hline \hline
                   & step  & name & extractant & extraction time & target pool      \\
             \hline
                 Extraction A   & 1 & MgCl & 1M magnesium chloride solution & 1h & exchangable iron, iron salts \\
-                   & 2 & HCl & 1M hydochloric acid & 4h & easily dissovable iron oxides and sulphides, carbonates\\
+                   & 2 & HCl & 1M hydochloric acid & 4h & easily dissoluble iron oxides and sulphides, carbonates\\
                    & 3 & CBD & 50 g/l sodium dithionite in 0.35 M acetic acid and 0.2 M sodium citrate buffer (pH 4.8)  & 4h & crystalline iron oxides \\
                    & 4 & HNO$_3$ & concentrated nitric acid (67\%)& 2h & pyrite\\
                    \hline
@@ -36,15 +42,24 @@ Approximately 100mg of dry sediment was weighed into a 15mL centrifuge tube. For
                     & 2 & pyrophosphate & 0.1M sodium pyrophosphate solution & 16h & organic bound iron\\
             \hline \hline
         \end{tabular}}
-    \caption{Sequential extraction steps used to extract iron phases. Each step targets a subsequent pool with lower reactivity. }
+    \caption{Sequential extraction procedure for determining Fe speciation. The extraction is performed in multiple steps using different solvents to extract iron phases. The sequence is build up so each step targets a subsequent pool with lower reactivity. The procedure is modefied from @claffSequentialExtractionProcedure2010 by removing the organic targeting pyrophosphate extraction from the sequence and instead to perform a parallel pyrophosphate extraction, here listed as extraction B.  }
     \label{tab:seqextr}
     \end{table}
+    
+
+## Incubation setup for benthic flux measurements
+
+To monitor benthic fluxes under oxic and anoxic conditions, sediment cores where incubated in a climate chamber at 10&deg;C for 60 days. For each location two cores were allowed to turn anoxic, and two where kept oxic by aerated the overlying water. To induce anoxic conditions, the cores were closed with an airtight cap with a stirrer and filled completely with surface water. (Fig. \@ref(fig:setup))  The decay in oxygen was monitored with an oxygen probe. Change in concentration of the overlying water was monitored by taking 20 mL from 1-3 cm above the sediment-water interface using a syringe and rubber tube, and filtered through a 0.45$\mu$m syringe filter directly into subsamples. The water was replenished using surface water collected at the locations, in the anoxic cores this was done simultaneously when taking samples to prevent air entering the core. Samples where taken from the overlying water on daily basis the first two weeks, and 2-3 times a week for the remaining experiment. At the end of the experiment, one anoxic core for each location was sliced and processed for porewater and sediment analysis.
+
+
+```{r setup, echo=FALSE, fig.cap="Incubating cores to monitor benthic fluxes. Left: Schematic representation of the anoxic and oxic incubations. Right: Photograph of the climate chamber during the experiment. In the center the oxic cores are aerated through tubes, while in the down-left corner the anoxic cores are contnuously stirred by upside-down magnetic stirrers.",fig.show="hold", out.width = "40%"}
+set <- c(paste(here("index","figures","Schematic.png")), paste(here("index","figures","setup.jpeg")))
+knitr::include_graphics(set)
+```
+
+
   
 ## Quantification methods
 
-Surface water, incubation samples and porewater were analysed on phosphate, total iron, ferrous iron(Fe<sup>2+</sup>), sulphide and ammonium by spectrophotometry. Calibration lines for ammonium, total iron and Fe<sup>2+</sup> were freshly made every day of measurement, while the phosphate calibration line was made once and remeasured. For calibrating sulphide measurements, a calibration slope of a previous experiment was used. In addition, sulphate and nitrate were measured using ion chromatography.
+Surface water, incubation samples and porewater were analyzed on phosphate, total iron, ferrous iron (Fe$^{2+}$), sulfide and ammonium with spectrophotometry following standardized methods using coloring reagents.[@murphyModifiedSingleSolution1962] For P and Fe measurments, a subsample was acidified after sampling with 1% 3.75M HNO$_3$ to prevent oxidation. [@brayPhosphateInterstitialWaters1973] Calibration lines for ammonium, total iron and Fe$^{2+}$ were freshly made every day of measurement, while the phosphate calibration line was made once and remeasured. For calibrating sulfide measurements, a calibration slope of a previous experiment was used. Water samples were also measured by ion chromatography (IC), to quantify common anions including sulfate and nitrate. The IC reported phosphate concentrations as well, but were not used since the reported values of P were higher than determined with spectrophotometry, and with much larger variability. The diluted extraction solutions gathered during the sequential extraction procedure were analyzed by inductively coupled plasma optical emission spectrometry (ICP-OES). In addition, spectrophotometry was deployed to identify the oxidation state of dissolved iron, which was only possible in the HCl extracted pool, as CBD and concentrated HNO$_3$ strongly influence the redox potential, and the MgCl and pyrophosphate pools were exposed to oxygen during the extraction procedure. The low pH of HCl stabilizes the redox state, and since it extracts various different reactive iron species, an evaluation on the redox state is useful. However, many values of Fe$^{2+}$ were found higher than total iron concentration. Total iron measured with spectrophotometry correlated strongly with ICP-OES Fe data, and is thus considered to be more reliable than the Fe$^{2+}$ results, which are excluded from this study.
 
-
-
-
-[^1]: Here is an example of a footnote.

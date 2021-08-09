@@ -22,78 +22,55 @@ t.test(EC_C, EC_D)
 t.test(c(EC_A, EC_B),c(EC_C, EC_D))
 ```
 
-The \textit{in situ} surface water measurements showed that both at the treated and non treated locations oxic conditions of 9.5-10.5 mg/L dissolved oxygen, and pH levels around 8. While no significant difference between treated and non-treated locations, water conditions did vary between the locations closer (C and D) and further away (A and B) from the water inlet. This variation was seen in a  significantly higher electric conductivity at locations A and B (438 $\mu$S and 451$\mu$S), than measured at locations C and D (395$\mu$S and 397$\mu$S), which correlated with sulfate concentrations. In addition, the decrease in sulfate concentration with depth in the porewater was steeper in locations C and D compared to A and B.( \@ref(fig:pwprofiles))
-
-Differences in iron content are immediately clear when comparing the sequential extraction data, which shows that iron is much more abundant in the treated cores than in the non-treated.( \@ref(fig:seq)) The largest pool extracted in the treated sediment is the HCl extractable pool, while the orginal sediment contains predominantly iron extracted HNO$_3$. The small amount of other Fe extracted in the non-treated cores is restricted to the top few centimeter. Interestingly, the HNO$_3$ extracted Fe after treatment is lower than in the original sediment.
-
-Phosphate abundancy in the extracted pools correlates well with total iron. While HCl extracted Fe is only a small fraction in the non-treated cores, the extracted P is largest in this pool. The treated sediment extracted more P with HCl at the maxima of iron, but was not that much higher compared to P in the untreated sediment.
-
-After anoxic incubation, 
-
-* With the exception of pyrite, all phases have decreased significantly in the top 10 cm after anoxic incubation. Pyrite increased slightly in the non treated cores, but not in the treated ones. (table)
-
-* The layer where iron abundancy is maximal has migrated upwards after anoxic incubating. This holds also for the depth where P/Fe ratio of treated converges with the reference.
 
 
-```{r seq, echo=FALSE, fig.cap="Iron content of sequential extraction pools as function of depth.", out.width= "50%"}
-knitr::include_graphics(c(here("index","figures","seq_extr_Fe_2.eps"), here("index","figures","seq_extr_Fe_3.eps")))
+The \textit{in situ} surface water measurements showed that both at the treated and non treated locations oxic conditions of 9.5-10.5 mg/L dissolved oxygen, and pH levels around 8. While no significant difference between treated and non-treated locations, water conditions did vary between the locations closer (C and D) and further away (A and B) from the water inlet. This variation was seen in a  significantly higher electric conductivity at locations A and B (438 $\mu$S and 451$\mu$S), than measured at locations C and D (395$\mu$S and 397$\mu$S), which correlated with sulfate concentrations. In addition, the decrease in sulfate concentration with depth in the porewater was steeper in locations C and D compared to A and B.( Fig. \@ref(fig:pwprofiles))
+
+Differences in iron content are immediately clear when comparing the sequential extraction data, which shows that iron is much more abundant in the treated cores than in the non-treated.(Fig. \@ref(fig:seq), left panel) The largest pool extracted in the treated sediment is the HCl extractable pool, while the orginal sediment contains predominantly iron extracted HNO$_3$. The small amount of other Fe extracted in the non-treated cores is restricted to the top few centimeter. Interestingly, the HNO$_3$ extracted Fe after treatment is lower than in the original sediment. 
+
+
+```{r seq, echo=FALSE, fig.cap="Diagram outlining the sequential extraction results. The extracted Fe and P for each extraction step is plotted as function of depth. Left panel shows the extracted Fe in each pool, the right panel the P.  The stacked and coloured integrals represent the relative size of the corresponding extacted pool and the total width the sum of all pools. The pyrophosphate extraction was performed in parallel, and is subsracted from the HCl pool in the Fe data. P was not analyzed in the pyrophosphate pool, it is assumed the pyrohosphate extractable P is distributed over the other pool.    ", fig.show="hold", out.width= "45%"}
+grap <- c(paste(here("index","figures","seq_extr_Fe_2.png")), paste(here("index","figures","seq_extr_Fe_3.png")))
+include_graphics(grap)
 ```
 
-```{r Pseq, echo=FALSE, fig.cap="Total phosphorous found in every pool of the sequential extraction, as function of depth.", out.width = "20%"}
-knitr::include_graphics(here("index","figures","seq_extr_Fe_3.eps"))
-```
+
+In addition to sediment from cores which were sliced and processed directly after the field campain, some cores used in the benthic flux experiment were sliced after the experiment ended, to evauate the effect of anoxic water conditions on the sediment. Significantly more Fe was extracted with HNO$_3$ from non-treated cores analyzed after anoxic incubation than found in fresh cores. In contrast, the rest of the extracted pools, in particular the HCl pool, decreased in iron content. Becouse of meso-scale heterogeneity of horizontal iron sludge distribution in the treated ditch, the Fe content varies greatly between cores, and absolute size of the pools can therefore not be compared. However, since the iron speciation in the sludge is the same in every location, the relative changes of Fe pools can be used to  inspect changes between cores before and after incubation. To only compare changes in the treated Fe, the Fe content of the reactive pools relative to the CBD pool was taken, with the assumption that the CBD pool mainly comprises stable iron oxides which have not changed significantly.  Here, a relative increase in both the pyrophosphate and HCl extracted iron pools is striking. The variation in iron content also explains the difference in vertical Fe distribution between cores, as larger clumps of iron sludge sink deeper in the sediment.
+
+
+
+Phosphate in the extracted pools correlates with the Fe distribution in the HCl pool. While HCl extracted Fe is only a small fraction in the non-treated cores, the extracted P is largest in this pool. (Fig. \@ref(fig:seq), right panel)  The treated sediment extracted more P with HCl at the maxima of iron, but was not that much higher compared to P in the untreated sediment. This leads to much higher P/Fe ratios in the HCl pool of the non-treated than the treated cores, respectively finding average P/Fe ratios of $0.358\pm 0.058$ and $0.052 \pm 0.013$ within 10cm depth.
 
  
-```{r pwprofiles, echo=FALSE, fig.cap="Depth profile of nutrient concentration in porewater. Treated locations are shown in red, reference locations in blue. Top row shows cores sliced directly after sampling, the bottom row after two months incubating under anoxic conditions. Iron, phosphate, slufide and ammonia were measured with photospectometry, sulfate and nitrate with IC.", out.width = "100%"}
+```{r pwprofiles, echo=FALSE, fig.cap="Depth profile of nutrient concentration in porewater. Treated locations are shown in red, non-treated reference locations in blue. Top row shows cores sliced directly after sampling, the bottom row after two months incubating under anoxic conditions. Iron, phosphate, slufide and ammonia were measured with photospectometry, sulfate and nitrate with IC.", out.width = "100%"}
 knitr::include_graphics(here("index","figures","profiles.eps"))
 ```
 
 
-Dissolved iron is highest at 1 - 10 cm depth in treated cores, and decreases with depth. In contrast, porewater of the non-treated cores contain very little iron. The non treated cores have high concentrations of phosphate in their porewater at every depth, with a peak in concentration close to the surface and an increase with after ~10 cm. Phosphate concentrations in the porewater, however, are low (~1-10 $\mu$M) where the dissolved iron concentration is high, and increase only with depth after 10 cm. 
-
-* An increase in ammonium is seen in the first 10 days in all cores. The non treated cores also show an increase in phosphate. 
-
-* Under anoxic conditions, iron concentrations increase in the treated cores, followed by an increase in phosphate.
-
-* After the initial increase, concentrations of NH4, Fe and P stabilize. The oxic cores show a decrease in P and NH4 levels, and an increase in nitrate concentration. In the anoxic incubations, this is followed by an increase in sulphide in the non treated cores, but not in the treated locations.
+In line with the change in solid phase composition, the porewater content also differs between treated and non-treated locations.(Fig. \@ref(fig:pwprofiles)) Treated cores contain high concentrations of iron in both oxidation states at depths with high solid iron content, with Fe$^{3+}$/Fe$^{2+}$ exceeding 1, meaning much of the iron is found in oxidized form. Dissolved iron is highest at 1 - 10 cm depth in treated cores, and below the zone where solid iron is concentrated it is mainly reduced Fe$^{2+}$ and decreases with depth. In contrast, porewater of the non-treated cores contain very little iron. For phosphate an opposite trend can be seen: The non treated cores have high concentrations of phosphate in their porewater at every depth, with a peak in concentration close to the surface and an increase with after ~10 cm. Phosphate concentrations in the porewater, however, are low (~1-10 $\mu$M) where the dissolved iron concentration is high, and increase only with depth after 10 cm. A similar, stronger effect is seen in the sulfide distribution, where high porewater concentrations found in the untreated sediment are absent in the presence of dissolved iron.
 
 
 
-
-
-* Use tables, figures (but prefer visual presentation):
-
-  + Tables and figures should supplement (and not duplicate) the text.
-
-  + Tables and figures should be provided with legends.
-
-  + _Figure \@ref(fig:graph) shows how to include and reference graphics.
-    The graphic must be labelled before. Files must be in __.eps__ format. You
-    can do this really easily in R Markdown with `knitr::include_graphics()`_!
-
-  + Figures can be referenced with `\@ref(fig:<name>)`, where `<name>` is the
-    name of the code chunk.
-
-```{r incubations, echo=FALSE, fig.cap="Concentration of nutrients in overlying water of incubated cores over time.", out.width = "100%"}
+```{r incubations, echo=FALSE, fig.cap="Concentration of nutrients in overlying water of incubated cores over time. Cores with anoxic conditions induced during the experiment (*left colum*) are compared with cores kept oxic by continue aeration (*right column*). The main goal was to study the difference in benthic fluxes from treated sediment, here in red, in relation to untreated sediment, displayed in blue. There are two treated and two untreated locations,  every location is incubated in duplo. The scale of the y axis is different for each parameter, while the x axis representing time in days is the same for all.", out.width = "85%"}
 knitr::include_graphics(here("index","figures","IC_incubations_1.eps"))
 ```
  
 
-```{r PFe, echo=FALSE, fig.cap="The ratio between phosphorous and iron in selected extracion pools. A ratio close to 1 suggests every Fe ion can bind one phosphate.", out.width = "100%"}
-knitr::include_graphics(here("index","figures","seq_extr_PFe.eps"))
-```
+
+The benthic flux experiment shows the release of nutrients over time, and indicates changes  the benthic fluxes of Fe, P and S in particular as effect of Fe treatment.(Fig. \@ref(fig:incubations)) P concentrations are largest in non-treated cores, and remain much lower in surface water of treated cores. There is a clear coupling between P release and redox conditions, which is stronger in the treated cores. Fe increase is almost completely dependent on redox conditions, and is exclusively seen in the anoxic cores. The iron increase is characterized by a sharp increase at the start of the experiment, which halts after a while. In the treated cores this increase leads to fluxes of iron in the order of 1-3mmolm$^{-2}$day$^{-1}$, and a subsequent stabilizing or slight increase of concentration after two weeks of anoxic incubation. The non-treated cores on the other hand, exhibit much lower, but still significant Fe fluxes, particularly in the D core, where they reach up to 200 $\mu$molm$^{-2}$day$^{-1}$. (Table \@ref(tab:flux)) The increase in Fe concentration is in the non-treated cores followed by a gradual decrease, a result of the increase in sulfide, which precipitates iron. The increase in sulfide itself is produced by reduction of sulfate, as can be seen in a decrease in sulfate concentration in all cores. Sulfate reduction in the treated cores does not lead to a sulfide increase, as the high iron content would prevent the sulfide to stay in solution. Finally,  nitrogen, in the form of ammonium (NH$_4^+$) and nitrate (NO$_3^-$), is less influenced by the treatment. After an initial high ammonium flux (1-3mmolm$^{-2}$day$^{-1}$), the increase slows down, and with oxygen available, nitrification dominates in the oxic cores. While this pattern is found in all cores, the ammonium production rate appears to be smaller during the initial rise, but larger during the long-term increase in the treated cores.
+
 
 
 \begin{table}[ht]
 \centering
 \begin{tabular}{rl|rrrrrrr||rrrr|}
   \toprule
-  & \multicolumn{12}{l}{Benthic fluxes in mmol m$^{-2}$ day$^{-1}$} \\
+  & \multicolumn{12}{l}{\textbf{Benthic fluxes in mmol m$^{-2}$ day$^{-1}$}} \\
   \hline
   & & \multicolumn{7}{c}{Anoxic incubations} & \multicolumn{4}{c}{Oxic incubations} \\
- & row.names &  \multicolumn{2}{c}{Fe$_{tot}$} & PO$_4^{3-}$ & \multicolumn{2}{c}{NH$_{4}^+$} & HS$^-$ & SO$_4^{2-}$ & 
+ &  &  \multicolumn{2}{c}{Fe$_{tot}$} & PO$_4^{3-}$ & \multicolumn{2}{c}{NH$_{4}^+$} & HS$^-$ & SO$_4^{2-}$ & 
  PO$_4^{3-}$ & NH$_{4}^+$ & SO$_4^{2-}$ & NO$_3^-$ \\ 
- &  & \textbf{I} & \textbf{III} & \textbf{II} & \textbf{I} & \textbf{III} & \textbf{III} & \textbf{III} & \textbf{II} & \textbf{I} & \textbf{III} & \textbf{III} \\
+ & \footnotesize{Time interval:} & \textbf{I} & \textbf{III} & \textbf{II} & \textbf{I} & \textbf{III} & \textbf{III} & \textbf{III} & \textbf{II} & \textbf{I} & \textbf{III} & \textbf{III} \\
   \hline
 & A & 1.09 & 0.22 & 0.11 & 1.48 & 0.30 & 0.00 & -1.20 & 0.02 & 1.34 & -0.19 & 0.29 \\ 
 &  & 0.12 & 0.12 & 0.08 & 0.15 & 0.27 & -0.00 & -1.11 & 0.02 & 0.81 & 0.15 & 0.18 \\ \hline
@@ -109,73 +86,6 @@ knitr::include_graphics(here("index","figures","seq_extr_PFe.eps"))
    \multicolumn{13}{l}{\footnotesize{\textbf{III}: After a week}} \\
    \bottomrule
 \end{tabular}
-\caption{Calculated benthic fluxes for selected species during incubation. Linear regressions were estimated for certain time intervals (listed with roman numbers), and the slopes are listed. }
+\caption{Estimations of benthic fluxes for selected species during incubation on various timescales. First, the data was converted to mole per unit area by multiplying the measured concentrations by the water volume and dividing by the sediment surface area in the core. Next, the flux was computed by deriving the slope of a linear regression over time within certain time intervals, which can be found in the table with roman numbers. The different time intervals were chosen based on periods with relatively constant increase observed in the incubation data. Important to note is that the calculated fluxes are rough estmations and have large errors, as the data is very dispersed and often does not follow a linear trend. The fluxes in this table should not be extrapolated or used outside the context of this study.}
     \label{tab:flux}
 \end{table}
-
-
-  + Tables and graphics may appear in the text or in the appendix, especially if
-  there are many simulation results tabulated, but is also depends on the study
-  and number of tables resp. figures. The key graphs and tables must appear in
-  the text!
-
-```{r table, echo=FALSE}
-library(tidyverse)
-col_names <- c(
-  "3m", "6m", "1yr", "2yr", "3yr", "5yr", "7yr", "10yr", "12yr", "15yr"
-)
-means     <- c(
-  3.138, 3.191, 3.307, 3.544, 3.756, 4.093, 4.354, 4.621, 4.741, 4.878
-)
-stddev    <- c(
-  0.915, 0.919, 0.935, 0.910, 0.876, 0.825, 0.803, 0.776, 0.768, 0.762
-)
-row_names <- c("Mean", "StD")
-
-df <- matrix(data = c(means, stddev), nrow = 2, byrow = T)
-rownames(df) <- row_names
-colnames(df) <- col_names
-df <- data.frame(df)
-knitr::kable(
-  df,
-  booktabs = TRUE,
-  caption = "Detailed descriptive statistics of location and dispersion for 2100 observed swap rates for the period from February 15, 1999 to March 2, 2007. Swap rates measured as 3.12 (instead of 0.0312).",
-  col.names = col_names, 
-  escape = FALSE
-) %>%
-kable_styling(latex_options = c("HOLD_position")) %>%
-row_spec(2, hline_after = T)
-```
-
-
-
-* Here tables can be easily integrated using the `kable()` function in the
-  `knitr` package (with perhaps some additional help from the `kableExtra`
-  package). `kable()` will automatically generate a label for the table
-  environment. That way you don't have to manually enter in the table in LaTex,
-  you can embed tables from R code. 
-
-* Tables can be referenced using `\@ref(label)`, where `label` is `tab:<name>`,
-  where `<name>` is the code chunk label.
-
-* The appearance may look different to tables directly typed with LaTex, due to
-  limitations in `kable()`. To compare:
-    
-
-
-  + _Equation \@ref(eq:SpecDens) represents the ACs of a stationary
-    stochastic process:_
-    \begin{equation}
-            f_y(\lambda) = (2\pi)^{-1} \sum_{j=-\infty}^{\infty}
-                           \gamma_j e^{-i\lambda j}
-                         =(2\pi)^{-1}\left(\gamma_0 + 2 \sum_{j=1}^{\infty}
-        \gamma_j \cos(\lambda j)\right)
-                                       (\#eq:SpecDens)
-    \end{equation}
-    _where $i=\sqrt{-1}$ is the imaginary unit, $\lambda \in [-\pi, \pi]$ is the
-    frequency and the $\gamma_j$ are the autocovariances of $y_t$._
-
-  + Equations can be referenced with `\@ref(eq:<name>)`, where name is defined
-    by adding `(\#eq:<name>)` in the line immediately before `\end{equation}`.
-
-

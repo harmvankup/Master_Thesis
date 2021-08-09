@@ -2,11 +2,11 @@
 #
 # Required Information --------------------------------------------------------
 # change lines 5 - 15
-title: "Phosphate dynamics in iron treated peat ditches"
+title: "Fe treatment in peat ditches reduces internal phosphorous loading"
 type: "Master's Thesis"
 author: "Harm van Kuppevelt"
 matriculation_number: "4061985"
-date: "June, 2021"
+date: "August, 2021"
 university: "Utrecht University"
 institute: "Faculty of Geosciences" 
 chair: "Department of Earth sciences"
@@ -78,10 +78,4 @@ The body of the thesis starts underneath the text below. Feel free to delete
 everything below this.
 -->
 
-# Preface {-}
-
-Welcome to the thesis template. This template is based on (and in many places 
-copied directly from) the HU Berlin School of Business and Economics LaTeX 
-template, but hopefully it will provide a nicer interface for those that have
-never used LaTeX before. 
 

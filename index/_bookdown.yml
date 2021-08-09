@@ -6,7 +6,6 @@ rmd_files: ["index.Rmd",
   "sections/04-discussion.Rmd",
   "sections/05-conclusion.Rmd",
   "sections/98-references.Rmd",
-  "sections/99-appendix.Rmd"
   ]
 output_dir: "thesis-output"
 download: ["thesis.pdf", "PDF"]

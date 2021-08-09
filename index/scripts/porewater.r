@@ -105,10 +105,10 @@ molten_Fe_data <- ICplotdata %>% mutate(FeIII = Fetot-FeII) %>%  select("locatio
                                                    labels = c("Before incubation","After incubation")))
 
 molten_presentation_data <- ICplotdata %>% filter(Incubation == "before") %>% 
-  select("location", "sample", "cm_below_swi", "treated", "Incubation", "P_phot","Fetot","SH") %>% 
+  select("location", "sample", "cm_below_swi", "treated", "Incubation","P", "P_phot","Fetot","SH") %>% 
   melt(id.vars = c("location", "sample", "cm_below_swi", "treated", "Incubation"), 
        na.rm = TRUE) %>% 
-  transform(variable =   factor(variable,  levels = c("Fetot","P_phot","SH")))
+  transform(variable =   factor(variable,  levels = c("Fetot","P_phot","P","SH")))
 # plot profiles by parameter
 
 # lable functions
@@ -183,3 +183,5 @@ ggsave(paste("Feprofiles.png",sep=""), plot =Fe_plots, path = path.expand(here("
        width =40, height = 25,units = "cm",dpi = 600)
 ggsave(paste("presentationprofiles.png",sep=""), plot =presentation_plots, path = path.expand(here("index","figures")),
        width =35, height = 25,units = "cm",dpi = 600)
+
+ICplotdata %>% filter(depth <= 10 & Incubation == "before") %>%  mutate(FeIIIFeII = (Fetot/FeII)-1) %>% group_by(Location) %>% summarise(Mean = mean(FeIIIFeII, na.rm = TRUE), stdv = sd(FeIIIFeII, na.rm = TRUE)) %>%  view()
