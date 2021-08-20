@@ -220,7 +220,10 @@ Seq_extr_dr <-Seq_extr_trans %>%
          FeP_HCl = mean(Fetot_HCl_calc)/mean(P_HCl_calc),
          FeP_CDB = case_when(mean(P_CDB_calc) == 0 ~ 0 , T ~  mean(Fe_CDB_calc)/mean(P_CDB_calc)),
          HCl_CDB = ((mean(Fetot_HCl_calc)-mean(Fe_pyroP_calc))*mean(tot_weight))/mean(Fe_CDB_umol),
-         pyroP_CDB = mean(Fe_pyroP_umol)/mean(Fe_CDB_umol)) %>% 
+         CDB_pyroP = mean(Fe_CDB_umol)/mean(Fe_pyroP_umol),
+         CDB_MgCl = case_when(((mean(Fe_MgCl_A_calc) + mean(Fe_MgCl_B_calc))/2) == 0 ~ NA_real_, 
+                              mean(Fe_CDB)/((mean(Fe_MgCl_A_calc) + mean(Fe_MgCl_B_calc))/2) > 500 ~ 5,
+                              T ~ 0.01*mean(Fe_CDB)/((mean(Fe_MgCl_A_calc) + mean(Fe_MgCl_B_calc))/2) ) ) %>% 
   distinct(Station, .keep_all = TRUE) %>% 
   ungroup %>% 
   left_join(TD_mean, 
@@ -258,10 +261,14 @@ seq_extr_FeP_molten <- Seq_extr_dr %>%
   select("depth","Location","Incubation",  FeP_HCl, FeP_CDB) %>% 
   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
 
-seq_extr_relative_molten <- Seq_extr_dr %>% filter(depth <= 10) %>% 
-  select("depth","Location","Incubation",   pyroP_CDB, HCl_CDB) %>% 
+seq_extr_relative_molten <- Seq_extr_dr %>% 
+  #filter(depth <= 10) %>% 
+  select("depth","Location","Incubation", CDB_MgCl,  CDB_pyroP, HCl_CDB) %>% 
   melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE)
 
+seq_extr_MgCl_molten <- Seq_extr_dr %>% 
+  select("depth","Location","Incubation",  Fe_MgCl) %>% 
+  melt(id.vars = c("depth","Location","Incubation"), variable.name = "Fraction" , na.rm = TRUE) 
 
 ######====== Create figures from data ======######
 
@@ -454,11 +461,11 @@ Lables = as_labeller( c(  "PFe_MgCl" = "MgCl",
                           "PFe_HNO" = "HNO[3]",
                           "after" = "After",
                           "before" = "Before") , default =  label_parsed )
-ratioplots <- list(seq_extr_PFe_molten, seq_extr_FeP_molten, seq_extr_relative_molten)
-xlable <- list("P/Fe","Fe/P","Fe/Fe")
-tit <- list("P/Fe ratio per pool","Fe/P ratio per pool"," Fe/Fe ratios")
+ratioplots <- list(seq_extr_PFe_molten, seq_extr_FeP_molten, seq_extr_relative_molten, seq_extr_MgCl_molten)
+xlable <- list("P/Fe","Fe/P","Fe/Fe", "Fe in umol/g")
+tit <- list("P/Fe ratio per pool","Fe/P ratio per pool"," Fe/Fe ratios", "MgCl pool")
 p <- list()
-for (i in 1:3) {
+for (i in 1:4) {
   
 p[[i]] <-  ggplot(transform(ratioplots[[i]], 
                                       Incubation = factor(Incubation, levels = c("before","after"))), 
@@ -496,7 +503,7 @@ p[[i]] <-  ggplot(transform(ratioplots[[i]],
 }
  
  PFe_profile_plots <- p[[1]]
-# show(p[[3]])
+show(p[[4]])
 # show(PFe_profile_plots)
 
 ggsave("seq_extr_PFe.eps", plot = PFe_profile_plots, path = path.expand(here("index","figures")),
@@ -602,6 +609,38 @@ gtsave(PFe_tbl, "PFe_table.png",  path = path.expand(here("index","figures")))
 
 #####----- some statistical analyses -----######
 
+shallowdeep <-  mutate(Seq_extr_dr, drange = case_when(depth <= 10 ~ "shallow",
+                                          depth >= 15 ~  "deep",
+                                          T ~ "NA")) %>% 
+  filter(Incubation == "before", drange == "shallow" | drange == "deep") %>% 
+  group_by(cdepth = paste(Treated, drange, sep = "_")) %>% 
+  summarize(Core = first(Core),
+            Femg = mean(Fe_MgCl, na.rm = TRUE),
+            Fepyr = mean(Fe_pyroP, na.rm = TRUE),
+            FeHCl = mean(Fe_HCl, na.rm = TRUE),
+            FeCBD = mean(Fe_CDB, na.rm = TRUE),
+            FeHNO = mean(Fe_HNO, na.rm = TRUE),
+            sdFemg = sd(Fe_MgCl, na.rm = TRUE),
+            sdFepyr = sd(Fe_pyroP, na.rm = TRUE),
+            sdFeHCl = sd(Fe_HCl, na.rm = TRUE),
+            sdFeCBD = sd(Fe_CDB, na.rm = TRUE),
+            sdFeHNO = sd(Fe_HNO, na.rm = TRUE),
+            CBDpyr = mean(CDB_pyroP , na.rm = TRUE),
+            HClCBD = mean(HCl_CDB , na.rm = TRUE),
+            CBDMgCl = mean(CDB_MgCl , na.rm = TRUE),
+            HCltot = (sum(Fe_HCl)/sum(tot_Fe)),
+            HNOtot = (sum(Fe_HNO)/sum(tot_Fe))
+            ) %>% view()
+
+
+ shallowdeep %>%  group_by(Core) %>% 
+  summarise(Mg = last(Femg)/first(Femg),
+            pyr = last(Fepyr)/first(Fepyr),
+            HCl = last(FeHCl)/first(FeHCl),
+            CBD = last(FeCBD)/first(FeCBD),
+            HNO = last(FeHNO)/first(FeHNO)) 
+
+
 
 eq <- function(x,y) {
   m <- lm(y ~ x)
@@ -617,10 +656,23 @@ eq <- function(x,y) {
 
 eqdepth <- Seq_extr_dr %>% filter(depth <= 10 & depth > 0)
 
-eqdepth %>% group_by(Core) %>% summarise(HClCDB1 = mean(HCl_CDB), 
-                                         HClCDB2 = (sum(Fe_HCl_umol)/sum(Fe_CDB_umol)),
-                                         pyroPCDB = (sum(Fe_pyroP_umol)/sum(Fe_CDB_umol)),
-                                         totFE = (sum(tot_Fe*tot_weight)*mw_Fe*0.000001)/(pi*0.0009)) 
+meanratio <-  eqdepth %>% 
+  group_by(Core) %>% 
+  summarise(Femg = mean(Fe_MgCl, na.rm = TRUE),
+            Fepyr = mean(Fe_pyroP, na.rm = TRUE),
+            FeHCl = mean(Fe_HCl, na.rm = TRUE),
+            FeCBD = mean(Fe_CDB, na.rm = TRUE),
+            FeHNO = mean(Fe_HNO, na.rm = TRUE),
+            HClCDB1 = mean(HCl_CDB), 
+            HClCDB2 = 2*(sum(Fe_HCl_umol)/sum(Fe_CDB_umol)),
+            CDBpyr = 2*(sum(Fe_pyroP_umol)/sum(Fe_CDB_umol)),
+            CDBMgCl = 1/(sum(Fe_CDB_umol)/sum(Fe_MgCl_umol)),
+            PHCltot = (sum(P_HCl)/sum(tot_P)),
+            HCltot = (sum(Fe_HCl)/sum(tot_Fe)),
+            HNOtot = (sum(Fe_HNO)/sum(tot_Fe)),
+            totP = (sum(tot_P*tot_weight)*mw_P*0.001),
+            totFE = (sum(tot_Fe*tot_weight)*mw_Fe*0.001) )
+view(meanratio)
 
 loc  <-  c("A","B","C","D")
 frac <- c("Fe_MgCl_umol", "Fe_pyroP_umol", "Fe_HCl_umol", "Fe_CDB_umol", "Fe_HNO_umol", "HCl_CDB","pyroP_CDB")
@@ -662,7 +714,14 @@ ggsave("Pyr_boxplot.png", plot = pyr_bp, path = path.expand(here("index","figure
        
        width =25, height = 25,units = "cm",dpi = 600)
 
-#eqdepth %>% group_by(Core) %>% summarise(Location = first(Location), Incubation = first(Incubation), Pyrite = mean(Fe_HNO), sumPyrite = sum(Fe_HNO))
+Seq_extr_dr %>% 
+  group_by(Core) %>% 
+  summarise(Location = first(Location), 
+            Incubation = first(Incubation), 
+            Pyrite = mean(Fe_HNO), 
+            sdpyr = sd(Fe_HNO), 
+            sumPyrite = sum(Fe_HNO)) %>% group_by() %>%  view
+  summarise(std = sqrt(mean(sdpyr*sdpyr))) %>%  view()
 
 
 

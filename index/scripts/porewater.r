@@ -48,7 +48,7 @@ for (i in 1:length(IC_parameters)) {
   stat_IC_table$Mean_sd[i] <-  sd
   
 }
-
+view(stat_IC_table)
 
 ####== Transform the raw data. ==####
 
@@ -184,4 +184,8 @@ ggsave(paste("Feprofiles.png",sep=""), plot =Fe_plots, path = path.expand(here("
 ggsave(paste("presentationprofiles.png",sep=""), plot =presentation_plots, path = path.expand(here("index","figures")),
        width =35, height = 25,units = "cm",dpi = 600)
 
-ICplotdata %>% filter(depth <= 10 & Incubation == "before") %>%  mutate(FeIIIFeII = (Fetot/FeII)-1) %>% group_by(Location) %>% summarise(Mean = mean(FeIIIFeII, na.rm = TRUE), stdv = sd(FeIIIFeII, na.rm = TRUE)) %>%  view()
+ICplotdata %>% 
+  filter(depth <= 10 & Incubation == "before") %>%  
+  mutate(FeIIIFeII = (Fetot/FeII)-1) %>% 
+  group_by(Location) %>% 
+  summarise(Mean = mean(FeIIIFeII, na.rm = TRUE), stdv = sd(FeIIIFeII, na.rm = TRUE)) %>%  view()
