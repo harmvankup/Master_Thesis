@@ -5,7 +5,7 @@
 Sediment cores and surface water were gathered at Bovenlanden, a peat meadow in South-Holland, the Netherlands (N 52&deg;, 9' E 4&deg;,52'). (Fig. \@ref(fig:BL)) The area functioned as farmland in the past, and is heavily influenced by fertilization. Nowdays, Bovenlanden is managed by Natuurmonumenten, in a conservation effort to restore biodiversity in the western peat meadow system of the Netherlands. The goal is to restore types of grassland common before industrialization of farming, which have typically more diverse vegetation and form a habitat for breeding meadow birds. To establish a nutrient poor wet meadow, water quality had to be improved. To reduce external influx of P, most ditches in the southern part have been detached from the surrounding surface water, keeping only one inlet via a weir, and runoff from land was reduced by removing the top layer of soil containing most of the nutrients. In 2020, 60 tons of iron sludge was added to the southern two ditches to mitigate internal P loading. Water quality improved on visual inspection after a few months after the treatment.
 
 
-```{r BL, echo=FALSE, fig.cap="Overview of the study site. On the left  the general location within the Netherlands is shown. In the bottom right is indicated where Bovenlanden is located within the Western peat area. On the right a satelite image of Bovenlanden with important features highlighted. Two ditches in the area have been treated with iron sludge in the past. Note the only water inlet is located in the north, far away from the treated ditches", out.width = "100%"}
+```{r BL, echo=FALSE, fig.cap="Overview of the study site. On the left  the general location within the Netherlands is shown. In the bottom right is indicated where Bovenlanden is located within the western peat area. On the right a satelite image of Bovenlanden with important features highlighted. Two ditches in the area have been treated with iron sludge in the past. Note the only water inlet is located in the north, far away from the treated ditches", out.width = "100%"}
 knitr::include_graphics(here("index","figures","BovenlandenOverview.png"))
 ```
 
@@ -38,7 +38,7 @@ Approximately 100mg of dry sediment was weighed into a 15mL centrifuge tube. For
                    & 3 & CBD & 50 g/l sodium dithionite in 0.35 M acetic acid and 0.2 M sodium citrate buffer (pH 4.8)  & 4h & crystalline iron oxides \\
                    & 4 & HNO$_3$ & concentrated nitric acid (67\%)& 2h & pyrite\\
                    \hline
-                    Extraction B   & 1 & MgCl & 1M magnesium chloride solution & 1h & exchangeable iron, iron salts\\
+                    Extraction B   & 1 & MgCl$_2$ & 1M magnesium chloride solution & 1h & exchangeable iron, iron salts\\
                     & 2 & pyrophosphate & 0.1M sodium pyrophosphate solution & 16h & organic complexed iron\\
             \hline \hline
         \end{tabular}}

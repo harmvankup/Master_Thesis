@@ -1,3 +1,3 @@
 # Acknowledgements {-}
 
-First and foremost I want to thank my supervisors Thilo Behrends and Melanie M{\"u}nch, for sharing their knowledge and practical help, and I especially enjoyed the fruitful discussions. I also want to thank all PhD and master students I have had the honor to meet during the practical work, for the lively conversations we had during breaks and outside of university.
+First and foremost I want to thank my supervisors Thilo Behrends and Melanie Münch, for sharing their knowledge and practical help, and I especially enjoyed the fruitful discussions. I also want to thank all PhD and master students I have had the honor to meet during the practical work, for the lively conversations we had during breaks and outside of university.

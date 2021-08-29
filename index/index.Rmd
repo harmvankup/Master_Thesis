@@ -2,7 +2,7 @@
 #
 # Required Information --------------------------------------------------------
 # change lines 5 - 15
-title: "Fe treatment in peat ditches reduces internal phosphorous loading"
+title: "Addition of iron (oxy)hydroxides to ditches in a peat meadow reduces the internal phosphorus loading"
 type: "Master's Thesis"
 author: "Harm van Kuppevelt"
 matriculation_number: "4061985"
@@ -20,11 +20,12 @@ chair2: "Geochemistry"
 abstract: |  
   `r if(knitr:::is_latex_output()) paste(readLines("prelim/00-abstract.Rmd"), collapse = '\n  ')`
 acknowledge: |  
-  `r if(knitr:::is_latex_output()) paste(readLines("prelim/00-acknowledge.Rmd"), collapse = '\n  ')`
+  `r if(knitr:::is_latex_output()) paste(readLines("prelim/00-acknowledge.Rmd", encoding = "UTF-8"), collapse = '\n  ')`
 lot: false                              # list of tables
 lof: false                              # list of figures
 link-citations: true
 bibliography: bib/references.bib       # bibliography file
+biblio-style: "apalike"
 #
 # Rendering Options -----------------------------------------------------------
 #
